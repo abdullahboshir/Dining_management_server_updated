@@ -49,6 +49,7 @@ export type TStudent = Document & {
   permanentAddress: TAddress
   mealInfo: TMealInfo
   bloodGroup: TBloodGroup
+  isDeleted: boolean
   createdAt?: Date
   updatedAt?: Date
 

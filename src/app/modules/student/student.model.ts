@@ -187,6 +187,10 @@ const studentSchema = new Schema<TStudent>(
       enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
       required: true,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },
