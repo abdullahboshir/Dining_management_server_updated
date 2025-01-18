@@ -1,14 +1,16 @@
 import express from 'express'
 import {
-  createStudentController,
+  deleteStudentController,
   getAStudentController,
   getStudentController,
+  updateStudentController,
 } from './student.controller'
 
 const router = express.Router()
 
-router.post('/create-student', createStudentController)
 router.get('/getStudents', getStudentController)
 router.get('/getStudent/:studentId', getAStudentController)
+router.delete('/:studentId', deleteStudentController)
+router.patch('/:studentId', updateStudentController)
 
 export const StudentRoutes = router

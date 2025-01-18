@@ -1,41 +1,28 @@
 import { Request, Response } from 'express'
+import studentValidationSchema from './student.validation'
 import {
-  createStudentService,
+  deleteStudentService,
   getAStudentService,
-  getStudentService,
+  getAllStudentService,
+  updateStudentService,
 } from './student.service'
-import 'colors'
-
-export const createStudentController = async (req: Request, res: Response) => {
-  try {
-    const studentdata = req.body
-    const result = await createStudentService(studentdata)
-    res.status(200).json({
-      success: true,
-      message: 'Student has been created successfully',
-      data: result,
-    })
-  } catch (err: any) {
-    res.status(400).json({
-      success: false,
-      message: `Student has been not successfully ${err.message.red}`,
-    })
-    console.log('got an error', err.message.red)
-  }
-}
+import sendResponse from '../../utils/sendRespnse'
+import catchAsync from '../../utils/catchAsync'
+import status from 'http-status'
 
 export const getStudentController = async (req: Request, res: Response) => {
   try {
-    const getStudent = await getStudentService()
+    const getStudent = await getAllStudentService()
     res.status(200).json({
       success: true,
       message: 'Student has been retrieved successfully',
       data: getStudent,
     })
   } catch (err: any) {
-    res.status(400).json({
+    res.status(500).json({
       success: false,
       message: `Student has been not successfully ${err.message.red}`,
+      error: err,
     })
   }
 }
@@ -50,9 +37,33 @@ export const getAStudentController = async (req: Request, res: Response) => {
       data: getAStudent,
     })
   } catch (err: any) {
-    res.status(400).json({
+    res.status(500).json({
       success: false,
       message: `Student has been retrieved not successfully ${err.message.red}`,
+      error: err,
     })
   }
 }
+
+export const deleteStudentController = catchAsync(async (req, res) => {
+  const result = await deleteStudentService(req.params.studentId)
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: 'Student has been Deleted successfully',
+    data: result,
+  })
+})
+
+export const updateStudentController = catchAsync(async (req, res) => {
+  const result = await updateStudentService(
+    req.params.studentId,
+    req.body.studentData,
+  )
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: 'Student has been Updated successfully',
+    data: result,
+  })
+})

@@ -1,5 +1,5 @@
-import mongoose, { Document } from 'mongoose'
-import { TMealInfo } from '../meal/meal.interface'
+import { Document, Model, Types } from 'mongoose'
+import { TMealInfo } from '../Meal/meal.interface'
 
 export type TGuardian = {
   fatherName: string
@@ -26,29 +26,33 @@ export type TUserName = {
 }
 
 export type TStudent = Document & {
-  authorId: mongoose.Schema.Types.ObjectId
-  adminId: mongoose.Schema.Types.ObjectId
-  diningId: mongoose.Schema.Types.ObjectId
-  managerId: mongoose.Schema.Types.ObjectId
-  studentId: number
+  adminId: Types.ObjectId
+  diningId: Types.ObjectId
+  managerId: Types.ObjectId
+  id: string
+  user: Types.ObjectId
   studentPin: string
   name: TUserName
   gender: 'Male' | 'Female' | 'other'
+  dateOfBirth: Date
+  phoneNumber: string
+  email: string
   roomNumber: number
+  seatNumber: string
   session: string
   status: 'active' | 'inactive' | 'blocked'
   department: string
   admissionFee: number
-  emailOrPhoneNumber: string
-  imergencyContact: string
+  emergencyContact: string
   password: string
   role: 'superAdmin' | 'admin' | 'manager' | 'user' | 'moderator'
   profileImg?: string
   guardian: TGuardian
   presentAddress: TAddress
   permanentAddress: TAddress
-  mealInfo: TMealInfo
+  mealInfo?: TMealInfo
   bloodGroup: TBloodGroup
+  academicDepartment: Types.ObjectId
   isDeleted: boolean
   createdAt?: Date
   updatedAt?: Date
@@ -56,4 +60,8 @@ export type TStudent = Document & {
   // Functions for schema logic
   validateStudentId: (value: number) => boolean
   validateEmailOrPhoneNumber: (value: string) => boolean
+}
+
+export interface StudentModel extends Model<TStudent> {
+  isUserExists(id: string): Promise<TStudent | null>
 }

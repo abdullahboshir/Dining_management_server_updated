@@ -1,17 +1,23 @@
 import mongoose, { Schema, Document } from 'mongoose'
-import bcrypt from 'bcrypt'
-import mealInfoSchema from '../meal/meal.model'
-import { TAddress, TGuardian, TStudent } from './student.interface'
+import mealInfoSchema from '../Meal/meal.model'
+
+import validator from 'validator'
+import {
+  StudentModel,
+  TAddress,
+  TGuardian,
+  TStudent,
+} from './student.interface'
 
 // Guardian Subdocument Schema
 const guardianSchema = new Schema<TGuardian>(
   {
-    fatherName: { type: String, required: true },
-    fatherOccupation: { type: String, required: true },
-    fatherContactNo: { type: String, required: true },
-    motherName: { type: String, required: true },
-    motherOccupation: { type: String, required: true },
-    motherContactNo: { type: String, required: true },
+    fatherName: { type: String, required: true, trim: true },
+    fatherOccupation: { type: String, required: true, trim: true },
+    fatherContactNo: { type: String, required: true, trim: true },
+    motherName: { type: String, required: true, trim: true },
+    motherOccupation: { type: String, required: true, trim: true },
+    motherContactNo: { type: String, required: true, trim: true },
   },
   { _id: false },
 )
@@ -29,39 +35,41 @@ const addressSchema = new Schema<TAddress>(
 )
 
 // Main Student Schema
-const studentSchema = new Schema<TStudent>(
+const studentSchema = new Schema<TStudent, StudentModel>(
   {
-    authorId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Author',
-      required: true,
-    },
     adminId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Admin',
+      ref: 'admin',
       required: true,
     },
     diningId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Dining',
+      ref: 'dining',
       required: true,
     },
     managerId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Manager',
+      ref: 'manager',
       required: true,
     },
-    studentId: {
-      type: Number,
+    id: {
+      type: String,
+      unique: true,
       required: [true, 'Please provide a Student ID'],
       index: true,
       trim: true,
       validate: {
-        validator: function (value: number) {
-          return /^[0-9]{5}$/.test(value.toString())
+        validator: function (value: string) {
+          return /^[0-9]{13}$/.test(value.toString())
         },
         message: 'The Student ID must contain exactly 5 digits.',
       },
+    },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      unique: true,
+      required: [true, 'User id is required'],
     },
     studentPin: {
       type: String,
@@ -79,14 +87,64 @@ const studentSchema = new Schema<TStudent>(
       },
     },
     name: {
-      firstName: { type: String, required: true, trim: true },
+      firstName: {
+        type: String,
+        required: true,
+        trim: true,
+        validate: {
+          validator: function (value: string) {
+            const firstNameStr = value.charAt(0).toUpperCase() + value.slice(1)
+            return firstNameStr === value
+          },
+          message: 'First Letter should be a Uppercase',
+        },
+      },
       middleName: { type: String, required: true, trim: true },
-      lastName: { type: String, required: true, trim: true },
+      lastName: {
+        type: String,
+        required: true,
+        trim: true,
+        validate: {
+          validator: (value: string) => validator.isAlpha(value),
+          message: '{VALUE} is not valid',
+        },
+      },
     },
     gender: {
       type: String,
       enum: ['Male', 'Female', 'other'],
       required: true,
+    },
+    dateOfBirth: {
+      type: Date,
+    },
+    phoneNumber: {
+      type: String,
+      required: [true, 'Phone Number is required'],
+      unique: true,
+      index: true,
+      lowercase: true,
+      trim: true,
+      validate: {
+        validator(value) {
+          const phoneRegex = /^01\d{9}$/
+          return phoneRegex.test(value)
+        },
+        message:
+          'Invalid phone number format. It must be 11 digits and start with 01.',
+      },
+    },
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      unique: true,
+      index: true,
+      lowercase: true,
+      trim: true,
+      validate: {
+        validator: (value: string) => validator.isEmail(value),
+        message: '{VALUE} is not a valid email type',
+      },
     },
     roomNumber: {
       type: Number,
@@ -96,6 +154,16 @@ const studentSchema = new Schema<TStudent>(
           return /^[0-9]{3}$/.test(value.toString())
         },
         message: 'The room number must contain exactly 3 digits.',
+      },
+    },
+    seatNumber: {
+      type: String,
+      required: [true, 'Seat Number is required'],
+      validate: {
+        validator: function (value: string) {
+          return /^[0-9]{2}$/.test(value.toString())
+        },
+        message: 'The Seat number must contain exactly 2 digits.',
       },
     },
     session: {
@@ -109,57 +177,18 @@ const studentSchema = new Schema<TStudent>(
       default: 'active',
       set: (value: string) => value.toLowerCase(),
     },
-    department: {
-      type: String,
-      required: [true, 'Please provide a Department of Student'],
-      trim: true,
-    },
     admissionFee: {
       type: Number,
       required: [true, 'Please provide an Admission Fee'],
       trim: true,
     },
-    emailOrPhoneNumber: {
+    emergencyContact: {
       type: String,
-      required: [true, 'Email or Phone Number is required'],
-      unique: true,
-      index: true,
-      lowercase: true,
-      trim: true,
-      validate: {
-        async validator(v: string) {
-          const count = await mongoose.models.Student.countDocuments({
-            emailOrPhoneNumber: v,
-          })
-          if (count > 0) {
-            const existing = await mongoose.models.Student.findOne({
-              emailOrPhoneNumber: v,
-            })
-            if (!(existing._id.toString() === this._id?.toString())) {
-              throw new Error('Email or Phone Number must be unique.')
-            }
-          }
-          return (
-            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
-            /^\(?(\d{3})\)?[- ]?(\d{3})[- ]?(\d{5})$/.test(v)
-          ) // Email or phone validation
-        },
-        message: (props) =>
-          `${props.value} is not a valid Email or Phone Number`,
-      },
-    },
-    imergencyContact: {
-      type: String,
-      required: [true, 'Emergency Contact is required'],
+      required: [true, 'Emergency Contact Number is required'],
     },
     password: {
       type: String,
       default: '',
-    },
-    role: {
-      type: String,
-      enum: ['superAdmin', 'admin', 'manager', 'user', 'moderator'],
-      default: 'user',
     },
     profileImg: {
       type: String,
@@ -185,6 +214,11 @@ const studentSchema = new Schema<TStudent>(
     bloodGroup: {
       type: String,
       enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+      required: false,
+    },
+    academicDepartment: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicDepartment',
       required: true,
     },
     isDeleted: {
@@ -228,6 +262,11 @@ studentSchema.pre('save', function (next) {
   next()
 })
 
+studentSchema.statics.isUserExists = async function (id: string) {
+  const existingUser = await Student.findOne({ id })
+  return existingUser
+}
+
 // another method pre function
 
 // // Pre-save middleware to handle dynamic updates to mealInfo
@@ -268,12 +307,10 @@ studentSchema.pre('save', function (next) {
 //     next();
 //   });
 
-// Define a method to compare the password with the hashed password
-studentSchema.methods.comparePassword = async function (password: string) {
-  return bcrypt.compare(password, this.password)
-}
+// set new index and unique
+// studentSchema.index({ studentId: 1, studentPin: 1 }, { unique: true })
 
 // Create the Mongoose model
-const Student = mongoose.model<Document & TStudent>('Student', studentSchema)
+const Student = mongoose.model<TStudent, StudentModel>('Student', studentSchema)
 
 export default Student
