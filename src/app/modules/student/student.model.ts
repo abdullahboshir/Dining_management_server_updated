@@ -171,12 +171,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       required: [true, 'Please provide a Session of Student'],
       trim: true,
     },
-    status: {
-      type: String,
-      enum: ['active', 'inactive', 'blocked'],
-      default: 'active',
-      set: (value: string) => value.toLowerCase(),
-    },
     admissionFee: {
       type: Number,
       required: [true, 'Please provide an Admission Fee'],
@@ -185,10 +179,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     emergencyContact: {
       type: String,
       required: [true, 'Emergency Contact Number is required'],
-    },
-    password: {
-      type: String,
-      default: '',
     },
     profileImg: {
       type: String,
@@ -206,10 +196,10 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       type: addressSchema,
       required: true,
     },
-    mealInfo: {
-      type: Map,
-      of: mealInfoSchema,
-      default: {},
+    meals: {
+      type: Schema.Types.ObjectId,
+      ref: 'Meals',
+      required: false,
     },
     bloodGroup: {
       type: String,
@@ -221,10 +211,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       ref: 'AcademicDepartment',
       required: true,
     },
-    isDeleted: {
-      type: Boolean,
-      default: false,
-    },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },
@@ -232,35 +218,35 @@ const studentSchema = new Schema<TStudent, StudentModel>(
 )
 
 // Define pre-save middleware to update mealInfo dynamically based on year and month
-studentSchema.pre('save', function (next) {
-  const currentDate = new Date()
-  const currentYear = currentDate.getFullYear().toString()
-  const currentMonth = currentDate.toLocaleString('default', { month: 'long' })
+// studentSchema.pre('save', function (next) {
+//   const currentDate = new Date()
+//   const currentYear = currentDate.getFullYear().toString()
+//   const currentMonth = currentDate.toLocaleString('default', { month: 'long' })
 
-  // Initialize mealInfo if it doesn't exist
-  if (!this.mealInfo) {
-    this.mealInfo = {}
-  }
+//   // Initialize mealInfo if it doesn't exist
+//   if (!this.meals) {
+//     this.meals = {}
+//   }
 
-  // Create or update the dynamic key based on the current year and month
-  this.mealInfo[currentYear] = this.mealInfo[currentYear] || {}
-  this.mealInfo[currentYear][currentMonth] = {
-    mealStatus: 'off',
-    maintenanceFee: 0,
-    totalDeposit: 0,
-    currentDeposit: 0,
-    lastMonthRefund: 0,
-    lastMonthDue: 0,
-    totalMeal: 0,
-    mealCharge: 0,
-    fixedMeal: 0,
-    fixedMealCharge: 0,
-    totalCost: 0,
-    dueDeposite: 0,
-    refundable: 0,
-  }
-  next()
-})
+//   // Create or update the dynamic key based on the current year and month
+//   this.meals[currentYear] = this.meals[currentYear] || {}
+//   this.meals[currentYear][currentMonth] = {
+//     mealStatus: 'off',
+//     maintenanceFee: 0,
+//     totalDeposit: 0,
+//     currentDeposit: 0,
+//     lastMonthRefund: 0,
+//     lastMonthDue: 0,
+//     totalMeal: 0,
+//     mealCharge: 0,
+//     fixedMeal: 0,
+//     fixedMealCharge: 0,
+//     totalCost: 0,
+//     dueDeposite: 0,
+//     refundable: 0,
+//   }
+//   next()
+// })
 
 studentSchema.statics.isUserExists = async function (id: string) {
   const existingUser = await Student.findOne({ id })

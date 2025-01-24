@@ -23,23 +23,23 @@ const diningSchema = new Schema<TDining>(
       minLength: [3, 'Name must be at least 3 characters'],
       maxLength: [100, 'Name is too large'],
     },
-    divisionValue: {
+    division: {
       type: String,
       required: [true, 'Division is required'],
     },
-    districtValue: {
+    district: {
       type: String,
       required: [true, 'District is required'],
     },
-    subDistrictValue: {
+    subDistrict: {
       type: String,
       required: [true, 'Sub-district is required'],
     },
-    allianceValue: {
+    alliance: {
       type: String,
       required: [true, 'Alliance is required'],
     },
-    seatsNumber: {
+    numberOfSeats: {
       type: Number,
       required: [true, 'Seats are required'],
       min: [1, 'There must be at least one seat'],

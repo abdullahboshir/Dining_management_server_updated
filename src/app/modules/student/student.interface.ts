@@ -1,5 +1,5 @@
 import { Document, Model, Types } from 'mongoose'
-import { TMealInfo } from '../Meal/meal.interface'
+import { TMeal } from '../Meal/meal.interface'
 
 export type TGuardian = {
   fatherName: string
@@ -50,7 +50,7 @@ export type TStudent = Document & {
   guardian: TGuardian
   presentAddress: TAddress
   permanentAddress: TAddress
-  mealInfo?: TMealInfo
+  meals: Types.ObjectId
   bloodGroup: TBloodGroup
   academicDepartment: Types.ObjectId
   isDeleted: boolean

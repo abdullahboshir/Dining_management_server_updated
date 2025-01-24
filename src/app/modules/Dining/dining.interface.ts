@@ -4,11 +4,11 @@ export type TDining = {
   superAdminId: mongoose.Schema.Types.ObjectId
   adminId: mongoose.Schema.Types.ObjectId
   diningName: string
-  divisionValue: string
-  districtValue: string
-  subDistrictValue: string
-  allianceValue: string
-  seatsNumber: number
+  division: string
+  district: string
+  subDistrict: string
+  alliance: string
+  numberOfSeats: number
   phoneNumber: string
   password: string
   applicationStartDate: string | null
