@@ -11,7 +11,7 @@ export const mealValidator = z.object({
   totalDeposit: z.number().default(0),
   currentDeposit: z.number().default(0),
   lastMonthRefund: z.number().default(0),
-  lastMonthDue: z.number().default(0),
+  dueMaintenanceFee: z.number().default(0),
   totalMeal: z.number().default(0),
   mealCharge: z.number().default(0),
   fixedMeal: z.number().default(0),

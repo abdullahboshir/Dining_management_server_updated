@@ -1,113 +1,66 @@
 import mongoose, { Schema } from 'mongoose'
-import bcrypt from 'bcrypt'
-import validator from 'validator'
-import { TDining } from './dining.interface'
+import { TDining, TDiningPolicies, TDiningSummary } from './dining.interface'
+
+const diningPoliciesSchema = new Schema<TDiningPolicies>(
+  {
+    mealCharge: { type: Number, default: 0 },
+    specialMealCharge: { type: Number, default: 0 },
+  },
+  { _id: false },
+)
+
+const diningSummarySchema = new Schema<TDiningSummary>(
+  {
+    totalMeals: { type: Number, default: 0 },
+    totalSpecialMeals: { type: Number, default: 0 },
+    totalDepositedAmount: { type: Number, default: 0 },
+    totalExpendedAmount: { type: Number, default: 0 },
+    remainingAmount: { type: Number, default: 0 },
+  },
+  { _id: false },
+)
 
 // Create a new Schema for Dining
 const diningSchema = new Schema<TDining>(
   {
-    superAdminId: {
+    hallId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'superAdmin',
-      required: true,
-    },
-    adminId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'admin',
-      required: true,
+      ref: 'Hall',
+      required: false,
     },
     diningName: {
       type: String,
       required: [true, 'Please provide a Name'],
+      unique: true,
       trim: true,
       minLength: [3, 'Name must be at least 3 characters'],
       maxLength: [100, 'Name is too large'],
     },
-    division: {
-      type: String,
-      required: [true, 'Division is required'],
-    },
-    district: {
-      type: String,
-      required: [true, 'District is required'],
-    },
-    subDistrict: {
-      type: String,
-      required: [true, 'Sub-district is required'],
-    },
-    alliance: {
-      type: String,
-      required: [true, 'Alliance is required'],
-    },
-    numberOfSeats: {
-      type: Number,
-      required: [true, 'Seats are required'],
-      min: [1, 'There must be at least one seat'],
-    },
-    phoneNumber: {
-      type: String,
-      unique: true,
-      index: true,
-      lowercase: true,
-      trim: true,
-      validate: {
-        validator(value) {
-          const phoneRegex = /^01\d{9}$/
-          return phoneRegex.test(value)
-        },
-        message:
-          'Invalid phone number format. It must be 11 digits and start with 01.',
-      },
-    },
-    password: {
-      type: String,
-      validate: {
-        validator: (value: string) =>
-          validator.isStrongPassword(value, {
-            minLength: 8,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1,
-          }),
-        message: 'Password {VALUE} is not strong enough',
-      },
-    },
-    applicationStartDate: {
-      type: String,
-    },
-    applicationEndDate: {
-      type: String,
-    },
-    applicationDate: {
-      type: Date,
-      default: Date.now,
-    },
-    passwordChangedAt: {
-      type: Date,
-    },
-    passwordResetToken: {
-      type: String,
-    },
-    passwordResetExpires: {
-      type: Date,
-    },
+    diningPolicies: diningPoliciesSchema,
+    diningSummary: diningSummarySchema,
   },
   { timestamps: true },
 )
 
-// Hash password before saving to database
 diningSchema.pre('save', function (next) {
-  if (this.isModified('password') || this.isNew) {
-    this.password = bcrypt.hashSync(this.password as string, 12)
+  if (!this.diningPolicies) {
+    this.diningPolicies = {
+      mealCharge: 0,
+      specialMealCharge: 0,
+    }
+  }
+
+  if (!this.diningSummary) {
+    this.diningSummary = {
+      totalMeals: 0,
+      totalSpecialMeals: 0,
+      totalDepositedAmount: 0,
+      totalExpendedAmount: 0,
+      remainingAmount: 0,
+    }
   }
   next()
 })
-
-// Method to compare given password with stored password hash
-diningSchema.methods.comparePassword = function (password: string) {
-  return bcrypt.compareSync(password, this.password)
-}
 
 // Create Dining model
 export const Dining = mongoose.model<TDining>('Dining', diningSchema)

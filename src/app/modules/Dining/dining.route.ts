@@ -11,8 +11,8 @@ router.post(
   //     console.log('req.bodyyyyyyyyyyyyy', req.body)
   //     next()
   //   },
-  validateRequest(diningSchemaValidation),
-  DiningController.createDining,
+  // validateRequest(diningSchemaValidation),
+  // DiningController.createDining,
 )
 
 export const DiningRoutes = router

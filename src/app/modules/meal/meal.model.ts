@@ -54,7 +54,7 @@ mealSchema.statics.isMealExists = async function (mealId: string) {
 //     totalDeposit: 0,
 //     currentDeposit: 0,
 //     lastMonthRefund: 0,
-//     lastMonthDue: 0,
+//     dueMaintenanceFee: 0,
 //     totalMeal: 0,
 //     mealCharge: 0,
 //     fixedMeal: 0,

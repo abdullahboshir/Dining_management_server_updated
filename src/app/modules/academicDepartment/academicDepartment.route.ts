@@ -1,7 +1,7 @@
 import express from 'express'
-import { academicDepartmentController } from './academicDepartment.controller'
 import validateRequest from '../../middlewares/validateRequest'
 import { academicDepartmentValidation } from './academicDepartment.validation'
+import { academicDepartmentController } from './academicDepartment.controller'
 
 const router = express.Router()
 

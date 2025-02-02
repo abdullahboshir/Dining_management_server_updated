@@ -12,11 +12,11 @@ export type TMeal = {
         totalDeposit: number
         currentDeposit: number
         previousRefunded: number
-        lastMonthDue: number
-        totalMeal: number
-        mealCharge: number
-        fixedMeal: number
-        fixedMealCharge: number
+        dueMaintenanceFee: number
+        totalMeals: number
+        mealFee: number
+        totalSpecialMeals: number
+        specialMealFee: number
         totalCost: number
         dueDeposite: number
         refundable: number

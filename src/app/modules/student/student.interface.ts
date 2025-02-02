@@ -25,8 +25,14 @@ export type TUserName = {
   lastName: string
 }
 
+export type TAdmissionDetails = {
+  admissionFee: string
+  isAdmissionFeePaid: boolean
+}
+
 export type TStudent = Document & {
   adminId: Types.ObjectId
+  hallId: Types.ObjectId
   diningId: Types.ObjectId
   managerId: Types.ObjectId
   id: string
@@ -40,9 +46,10 @@ export type TStudent = Document & {
   roomNumber: number
   seatNumber: string
   session: string
+  classRoll: number
   status: 'active' | 'inactive' | 'blocked'
   department: string
-  admissionFee: number
+  admissionDetails: TAdmissionDetails
   emergencyContact: string
   password: string
   role: 'superAdmin' | 'admin' | 'manager' | 'user' | 'moderator'

@@ -42,9 +42,14 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       ref: 'admin',
       required: true,
     },
+    hallId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Hall',
+      required: true,
+    },
     diningId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'dining',
+      ref: 'Dining',
       required: true,
     },
     managerId: {
@@ -171,10 +176,21 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       required: [true, 'Please provide a Session of Student'],
       trim: true,
     },
-    admissionFee: {
+    classRoll: {
       type: Number,
-      required: [true, 'Please provide an Admission Fee'],
+      required: [true, 'Please provide Your Class roll'],
       trim: true,
+    },
+    admissionDetails: {
+      admissionFee: {
+        type: Number,
+        required: [true, 'Please provide an Admission Fee'],
+        trim: true,
+      },
+      isAdmissionFeePaid: {
+        type: Boolean,
+        default: false,
+      },
     },
     emergencyContact: {
       type: String,
@@ -236,7 +252,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
 //     totalDeposit: 0,
 //     currentDeposit: 0,
 //     lastMonthRefund: 0,
-//     lastMonthDue: 0,
+//     dueMaintenanceFee: 0,
 //     totalMeal: 0,
 //     mealCharge: 0,
 //     fixedMeal: 0,
@@ -277,7 +293,7 @@ studentSchema.statics.isUserExists = async function (id: string) {
 //       totalDeposit: 0,
 //       currentDeposit: 0,
 //       lastMonthRefund: 0,
-//       lastMonthDue: 0,
+//       dueMaintenanceFee: 0,
 //       totalMeal: 0,
 //       mealCharge: 0,
 //       fixedMeal: 0,
