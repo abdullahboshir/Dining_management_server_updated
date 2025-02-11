@@ -1,7 +1,6 @@
-import { NextFunction, Request, RequestHandler, Response } from 'express'
+import { RequestHandler } from 'express'
 import status from 'http-status'
-import studentValidationSchema from '../Student/student.validation'
-import { createStudentService } from './user.service'
+import { createStudentService, getMeService } from './user.service'
 import sendResponse from '../../utils/sendRespnse'
 import catchAsync from '../../utils/catchAsync'
 
@@ -17,6 +16,18 @@ const createStudent: RequestHandler = catchAsync(async (req, res) => {
   })
 })
 
+const getMe: RequestHandler = catchAsync(async (req, res) => {
+  const { userId, role } = req?.user
+  const result = await getMeService(userId, role)
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: 'User has been retrieved successfully',
+    data: result,
+  })
+})
+
 export const UserController = {
   createStudent,
+  getMe,
 }

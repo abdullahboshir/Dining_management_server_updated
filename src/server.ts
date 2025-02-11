@@ -22,3 +22,28 @@ async function main() {
 }
 
 main()
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason)
+  if (server) {
+    server.close(() => {
+      console.log('Server is shutting down due to an unhandled rejection')
+      process.exit(1)
+    })
+  } else {
+    process.exit(1) // Exit immediately if server isn't available
+  }
+})
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err.message)
+  console.error(err.stack) // Log the full stack trace
+  if (server) {
+    server.close(() => {
+      console.log('Server is shutting down due to an uncaught exception')
+      process.exit(1)
+    })
+  } else {
+    process.exit(1) // Exit immediately if server isn't available
+  }
+})

@@ -90,7 +90,7 @@ const startMealIncreament = (mealId: Types.ObjectId) => {
         }
 
         const increamentAmount = 1
-        const increamentTotal = (mealBaseObj.totalMeal += 1)
+        const increamentTotal = (mealBaseObj.totalMeals += 1)
 
         const multiplyMeal = 80 * increamentAmount
         const currentDeposit = (mealBaseObj.currentDeposit -= multiplyMeal)
@@ -100,7 +100,7 @@ const startMealIncreament = (mealId: Types.ObjectId) => {
           mealId,
           {
             $set: {
-              [`mealInfo.${currentYear}.${currentMonth}.totalMeal`]:
+              [`mealInfo.${currentYear}.${currentMonth}.totalMeals`]:
                 increamentTotal,
               [`mealInfo.${currentYear}.${currentMonth}.currentDeposit`]:
                 currentDeposit,

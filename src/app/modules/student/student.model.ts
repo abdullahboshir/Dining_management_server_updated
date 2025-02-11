@@ -1,13 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose'
-import mealInfoSchema from '../Meal/meal.model'
-
 import validator from 'validator'
-import {
-  StudentModel,
-  TAddress,
-  TGuardian,
-  TStudent,
-} from './student.interface'
+import { TAddress, TGuardian, TStudent } from './student.interface'
 
 // Guardian Subdocument Schema
 const guardianSchema = new Schema<TGuardian>(
@@ -35,7 +28,7 @@ const addressSchema = new Schema<TAddress>(
 )
 
 // Main Student Schema
-const studentSchema = new Schema<TStudent, StudentModel>(
+const studentSchema = new Schema<TStudent>(
   {
     adminId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -264,11 +257,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
 //   next()
 // })
 
-studentSchema.statics.isUserExists = async function (id: string) {
-  const existingUser = await Student.findOne({ id })
-  return existingUser
-}
-
 // another method pre function
 
 // // Pre-save middleware to handle dynamic updates to mealInfo
@@ -313,6 +301,6 @@ studentSchema.statics.isUserExists = async function (id: string) {
 // studentSchema.index({ studentId: 1, studentPin: 1 }, { unique: true })
 
 // Create the Mongoose model
-const Student = mongoose.model<TStudent, StudentModel>('Student', studentSchema)
+const Student = mongoose.model<TStudent>('Student', studentSchema)
 
 export default Student

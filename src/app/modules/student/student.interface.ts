@@ -68,7 +68,3 @@ export type TStudent = Document & {
   validateStudentId: (value: number) => boolean
   validateEmailOrPhoneNumber: (value: string) => boolean
 }
-
-export interface StudentModel extends Model<TStudent> {
-  isUserExists(id: string): Promise<TStudent | null>
-}

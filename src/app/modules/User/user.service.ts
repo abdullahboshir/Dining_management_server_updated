@@ -9,6 +9,14 @@ import { TMeal } from '../Meal/meal.interface'
 import Meal from '../Meal/meal.model'
 import { mealInfoObj } from '../Meal/meal.const'
 import { currentDateBD } from '../../utils/currentDateBD'
+import { Hall } from '../Hall/hall.model'
+import { Dining } from '../Dining/dining.model'
+import { USER_ROLE } from './user.constant'
+import { verifyToken } from '../Auth/auth.utils'
+import status from 'http-status'
+import AppError from '../../errors/AppError'
+import { JwtPayload } from 'jsonwebtoken'
+import { sendImageToCloudinary } from '../../utils/IMGUploader'
 
 export const createStudentService = async (
   password: string,
@@ -17,8 +25,27 @@ export const createStudentService = async (
   const userData: Partial<TUser> = {}
   const mealData: Partial<TMeal> = {}
 
-  userData.password = config.default_pass || password
-  userData.role = 'student'
+  if (
+    !Types.ObjectId.isValid(studentData.hallId) ||
+    !Types.ObjectId.isValid(studentData.diningId)
+  ) {
+    throw new Error('invalid Dining or Hall!')
+  }
+
+  const isHallExist = await Hall.findById({ _id: studentData.hallId })
+
+  if (!isHallExist) {
+    throw new Error('The Student has not under in the Hall!')
+  }
+
+  const isDiningExist = await Dining.findById({ _id: studentData.diningId })
+
+  if (!isDiningExist) {
+    throw new Error('The Student has not under in Dining!')
+  }
+
+  const imgUpload = sendImageToCloudinary()
+  // console.log
 
   const session = await startSession()
   try {
@@ -29,6 +56,9 @@ export const createStudentService = async (
 
     // create User
     userData.id = id
+    userData.password = config.default_pass || password
+    userData.role = USER_ROLE.student
+    userData.email = studentData.email
     const newUser = await User.create([userData], { session })
 
     if (!newUser.length) {
@@ -38,6 +68,7 @@ export const createStudentService = async (
     // create Student
     studentData.id = newUser[0].id
     studentData.user = newUser[0]._id
+    // studentData.profileImg =
     const newStudent = await Student.create([studentData], { session })
 
     if (!newStudent || !newStudent.length) {
@@ -96,4 +127,13 @@ export const createStudentService = async (
     await session.endSession()
     throw new Error(error.message)
   }
+}
+
+export const getMeService = async (id: string, role: string) => {
+  let result = null
+  if (role === USER_ROLE.student) {
+    result = await Student.findOne({ id }).populate('user')
+  }
+
+  return result
 }

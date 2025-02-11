@@ -2,6 +2,8 @@ import express, { NextFunction, Request, Response } from 'express'
 import { UserController } from './user.controller'
 import validateRequest from '../../middlewares/validateRequest'
 import studentValidationSchema from '../Student/student.validation'
+import auth from '../../middlewares/auth'
+import { USER_ROLE } from './user.constant'
 const router = express.Router()
 
 router.post(
@@ -10,8 +12,15 @@ router.post(
   //   req.body = JSON.parse(req.body.data)
   //   next()
   // },
+  // auth(USER_ROLE.admin),
   validateRequest(studentValidationSchema),
   UserController.createStudent,
+)
+
+router.get(
+  '/me',
+  auth('student', 'moderator', 'manager', 'admin'),
+  UserController.getMe,
 )
 
 export const UserRoutes = router

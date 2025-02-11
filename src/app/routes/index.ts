@@ -6,6 +6,7 @@ import { DiningRoutes } from '../modules/Dining/dining.route'
 import { MealRoutes } from '../modules/Meal/meal.route'
 import { academicFacultyRoutes } from '../modules/AcademicFaculty/academicFaculty.route'
 import { academicDepartmentRoutes } from '../modules/AcademicDepartment/academicDepartment.route'
+import { AuthRoutes } from '../modules/Auth/auth.route'
 
 const router = Router()
 
@@ -37,6 +38,10 @@ const moduleRoutes = [
   {
     path: '/meal',
     route: MealRoutes,
+  },
+  {
+    path: '/auth',
+    route: AuthRoutes,
   },
 ]
 
