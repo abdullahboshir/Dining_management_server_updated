@@ -21,6 +21,7 @@ import { sendImageToCloudinary } from '../../utils/IMGUploader'
 export const createStudentService = async (
   password: string,
   studentData: TStudent,
+  file: any,
 ) => {
   const userData: Partial<TUser> = {}
   const mealData: Partial<TMeal> = {}
@@ -44,7 +45,6 @@ export const createStudentService = async (
     throw new Error('The Student has not under in Dining!')
   }
 
-  const imgUpload = sendImageToCloudinary()
   // console.log
 
   const session = await startSession()
@@ -52,13 +52,20 @@ export const createStudentService = async (
     //   start session
     session.startTransaction()
     const id = await generatedStudentId(studentData)
-    //   const existingUser = await Student.isUserExists(id)
+
+    const imgName = `${studentData.name.firstName}${id}`
+    const imgPath = file?.path
+    const { secure_url } = (await sendImageToCloudinary(
+      imgName,
+      imgPath,
+    )) as any
 
     // create User
     userData.id = id
-    userData.password = config.default_pass || password
+    userData.password = password || config.default_pass
     userData.role = USER_ROLE.student
     userData.email = studentData.email
+
     const newUser = await User.create([userData], { session })
 
     if (!newUser.length) {
@@ -68,7 +75,7 @@ export const createStudentService = async (
     // create Student
     studentData.id = newUser[0].id
     studentData.user = newUser[0]._id
-    // studentData.profileImg =
+    studentData.profileImg = secure_url
     const newStudent = await Student.create([studentData], { session })
 
     if (!newStudent || !newStudent.length) {

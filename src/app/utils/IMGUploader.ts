@@ -1,32 +1,50 @@
 import { v2 as cloudinary } from 'cloudinary'
+import fs from 'fs'
 
-export const sendImageToCloudinary = async () => {
-  // Configuration
-  cloudinary.config({
-    cloud_name: 'domocgzww',
-    api_key: '294927584132234',
-    api_secret: '<your_api_secret>', // Click 'View API Keys' above to copy your API secret
-  })
+import config from '../config'
+import multer from 'multer'
 
-  // Upload an image
-  const uploadResult = await cloudinary.uploader
-    .upload(
-      'https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg',
+// Configuration
+cloudinary.config({
+  cloud_name: config.cloud_name,
+  api_key: config.cloud_api_key,
+  api_secret: config.cloud_api_secret,
+})
+
+export const sendImageToCloudinary = async (imgName: string, path: string) => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload(
+      path,
       {
-        public_id: 'shoes',
+        public_id: imgName,
+      },
+      function (error, result) {
+        if (error) {
+          reject(error)
+        }
+        resolve(result)
+
+        // delete a file asynchronously
+        fs.unlink(path, (err) => {
+          if (err) {
+            console.log(err)
+          } else {
+            console.log('File is deleted.')
+          }
+        })
       },
     )
-    .catch((error) => {
-      console.log(error)
-    })
-
-  console.log(uploadResult)
-
-  // Optimize delivery by resizing and applying auto-format and auto-quality
-  const optimizeUrl = cloudinary.url('shoes', {
-    fetch_format: 'auto',
-    quality: 'auto',
   })
-
-  console.log(optimizeUrl)
 }
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, process.cwd() + '/uploads')
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
+    cb(null, file.fieldname + '-' + uniqueSuffix)
+  },
+})
+
+export const upload = multer({ storage: storage })

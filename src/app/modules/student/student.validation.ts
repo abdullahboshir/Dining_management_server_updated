@@ -93,8 +93,6 @@ const studentValidationSchema = z.object({
         .string()
         .min(1, 'Emergency contact number is required'),
 
-      profileImg: z.string().min(1, 'Profile image path is required'),
-
       guardian: guardianValidationSchema,
 
       presentAddress: addressValidationSchema,

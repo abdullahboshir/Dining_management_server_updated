@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import 'colors'
 import app from './app'
 import config from './app/config'
+import seedSuperAdmin from './app/DB'
 
 let server: Server
 
@@ -13,6 +14,7 @@ async function main() {
       return
     }
     await mongoose.connect(config.db_url as string)
+    seedSuperAdmin()
     server = app.listen(config.port, () => {
       console.log(`Example app listening on port ${config.port}`.green)
     })

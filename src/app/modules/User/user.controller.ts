@@ -7,7 +7,7 @@ import catchAsync from '../../utils/catchAsync'
 const createStudent: RequestHandler = catchAsync(async (req, res) => {
   const { password, studentData } = req.body
 
-  const result = await createStudentService(password, studentData)
+  const result = await createStudentService(password, studentData, req.file)
   sendResponse(res, {
     success: true,
     statusCode: status.OK,

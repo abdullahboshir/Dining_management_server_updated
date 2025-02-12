@@ -191,7 +191,6 @@ const studentSchema = new Schema<TStudent>(
     },
     profileImg: {
       type: String,
-      required: [true, 'Image path is required'],
     },
     guardian: {
       type: guardianSchema,
