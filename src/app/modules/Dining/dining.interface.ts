@@ -3,6 +3,8 @@ import mongoose from 'mongoose'
 export type TDiningPolicies = {
   mealCharge: number
   specialMealCharge: number
+  minimumDeposit: number
+  reservedSafetyDeposit: number
 }
 
 export type TDiningSummary = {
@@ -14,7 +16,7 @@ export type TDiningSummary = {
 }
 
 export type TDining = {
-  hallId?: mongoose.Schema.Types.ObjectId
+  hall: mongoose.Schema.Types.ObjectId
   diningName: string
   diningPolicies?: TDiningPolicies | undefined
   diningSummary: TDiningSummary

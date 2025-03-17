@@ -6,4 +6,10 @@ export const USER_ROLE = {
   moderator: 'moderator',
 } as const
 
-export const USER_STATUS = ['active', 'inactive', 'blocked']
+export const USER_STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  BLOCKED: 'blocked',
+}
+
+export const USER_STATUS_ARRAY = Object.values(USER_STATUS)

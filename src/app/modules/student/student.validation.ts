@@ -1,108 +1,76 @@
 import { z } from 'zod'
 
-const objectIdRegex = /^[a-fA-F0-9]{24}$/
-
 // Guardian Subdocument Schema
-const guardianValidationSchema = z.object({
-  fatherName: z.string().trim().min(1, "Father's name is required"),
-  fatherOccupation: z.string().trim().min(1, "Father's occupation is required"),
-  fatherContactNo: z
-    .string()
-    .trim()
-    .min(1, "Father's contact number is required"),
-  motherName: z.string().trim().min(1, "Mother's name is required"),
-  motherOccupation: z.string().trim().min(1, "Mother's occupation is required"),
-  motherContactNo: z
-    .string()
-    .trim()
-    .min(1, "Mother's contact number is required"),
+const guardianSchema = z.object({
+  fatherName: z.string().min(1, 'Father Name is required').trim(),
+  fatherOccupation: z.string().min(1, 'Father Occupation is required').trim(),
+  fatherContactNo: z.string().min(1, 'Father Contact No is required').trim(),
+  motherName: z.string().min(1, 'Mother Name is required').trim(),
+  motherOccupation: z.string().min(1, 'Mother Occupation is required').trim(),
+  motherContactNo: z.string().min(1, 'Mother Contact No is required').trim(),
 })
 
 // Address Subdocument Schema
-const addressValidationSchema = z.object({
-  division: z.string().trim().min(1, 'Division is required'),
-  district: z.string().trim().min(1, 'District is required'),
-  subDistrict: z.string().trim().min(1, 'SubDistrict is required'),
-  alliance: z.string().trim().min(1, 'Alliance is required'),
-  village: z.string().trim().min(1, 'Village is required'),
+const addressSchema = z.object({
+  division: z.string().min(1, 'Division is required'),
+  district: z.string().min(1, 'District is required'),
+  subDistrict: z.string().min(1, 'SubDistrict is required'),
+  alliance: z.string().min(1, 'Alliance is required'),
+  village: z.string().min(1, 'Village is required'),
 })
 
 // Main Student Schema
 const studentValidationSchema = z.object({
-  body: z.object({
-    password: z.string().max(20).min(8).optional(),
-    studentData: z.object({
-      adminId: z.string().regex(objectIdRegex, 'Invalid adminId format'),
-      diningId: z.string().regex(objectIdRegex, 'Invalid diningId format'),
-      managerId: z.string().regex(objectIdRegex, 'Invalid managerId format'),
-      studentPin: z
-        .string()
-        .min(5, 'Student PIN must be 5 digits')
-        .max(5, 'Student PIN must be 5 digits')
-        .regex(/^[0-9]{5}$/, 'Student PIN must contain exactly 5 digits'),
-
-      name: z.object({
-        firstName: z
-          .string()
-          .trim()
-          .min(1, 'First name is required')
-          .regex(/^[A-Z]/, 'First name should start with an uppercase letter'),
-        middleName: z.string().trim().min(1, 'Middle name is required'),
-        lastName: z
-          .string()
-          .trim()
-          .min(1, 'Last name is required')
-          .regex(/^[A-Za-z]+$/, 'Last name should only contain alphabets'),
-      }),
-
-      gender: z.enum(['Male', 'Female', 'other']),
-
-      dateOfBirth: z.string().optional(), // Assuming it's a string in ISO format
-
-      phoneNumber: z
-        .string()
-        .trim()
-        .regex(
-          /^01\d{9}$/,
-          'Invalid phone number format. It must be 11 digits and start with 01.',
-        ),
-
-      email: z.string().trim().email('Invalid email format'),
-
-      roomNumber: z
-        .number()
-        .int()
-        .min(100, 'Room Number must be exactly 3 digits')
-        .max(999, 'Room Number must be exactly 3 digits'),
-
-      seatNumber: z
-        .string()
-        .min(2, 'Seat Number should be 2 digits')
-        .max(2, 'Seat Number should be 2 digits'),
-
-      session: z.string().trim().min(1, 'Session is required'),
-      academicDepartment: z
-        .string()
-        .regex(objectIdRegex, 'Invalid Academic Department format'),
-
-      admissionFee: z
-        .number()
-        .positive('Admission fee must be a positive number'),
-
-      emergencyContact: z
-        .string()
-        .min(1, 'Emergency contact number is required'),
-
-      guardian: guardianValidationSchema,
-
-      presentAddress: addressValidationSchema,
-
-      permanentAddress: addressValidationSchema,
-      bloodGroup: z
-        .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
-        .optional(),
-    }),
+  creator: z.string().min(1, 'ID is required'),
+  hall: z.string().min(1, 'Hall is required'),
+  dining: z.string().min(1, 'Dining is required'),
+  user: z.string().min(1, 'User ID is required'),
+  name: z.object({
+    firstName: z.string().min(1, 'First Name is required').trim(),
+    middleName: z.string().trim().optional(),
+    lastName: z.string().min(1, 'Last Name is required').trim(),
   }),
+  gender: z.enum(['Male', 'Female', 'other']),
+  dateOfBirth: z.string().optional(),
+  phoneNumber: z
+    .string()
+    .min(11, 'Phone Number is required')
+    .max(11, 'Phone Number must be exactly 11 digits')
+    .regex(
+      /^01\d{9}$/,
+      'Phone number must start with 01 and contain exactly 11 digits',
+    ),
+  email: z.string().min(1, 'Email is required').email('Invalid email format'),
+  roomNumber: z
+    .number()
+    .min(100, 'Room Number must be 3 digits')
+    .max(999, 'Room Number must be 3 digits'),
+  seatNumber: z
+    .string()
+    .regex(/^\d{2}$/, 'Seat Number must be exactly 2 digits'),
+  academicFaculty: z.string().min(1, 'Academic Faculty is required').trim(),
+  academicDepartment: z
+    .string()
+    .min(1, 'Academic Department is required')
+    .trim(),
+  session: z.string().min(1, 'Session is required').trim(),
+  classRoll: z.number().min(1, 'Class Roll is required'),
+  admissionDetails: z.object({
+    admissionFee: z.number().min(1, 'Admission Fee is required'),
+    isAdmissionFeePaid: z.boolean().default(false),
+  }),
+  emergencyContact: z.string().min(1, 'Emergency Contact Number is required'),
+  profileImg: z.string().optional().default(''),
+  guardian: guardianSchema,
+  presentAddress: addressSchema,
+  permanentAddress: addressSchema,
+  meals: z.string().optional(),
+  bloodGroup: z
+    .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+    .optional(),
 })
+
+const capitalize = (str: string = '') =>
+  str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
 
 export default studentValidationSchema

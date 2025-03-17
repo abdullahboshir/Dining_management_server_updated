@@ -2,9 +2,11 @@ import status from 'http-status'
 import sendResponse from '../../utils/sendRespnse'
 import { RequestHandler } from 'express'
 import catchAsync from '../../utils/catchAsync'
-import { createDiningService } from './dining.service'
+import { getAllDiningService } from './dining.service'
 
-const createDining: RequestHandler = catchAsync(async (req, res) => {
+// no need to create dining manually because dining will be created automatically when server will be run.
+
+/*const createDining: RequestHandler = catchAsync(async (req, res) => {
   const diningData = req.body
 
   const result = await createDiningService(diningData)
@@ -14,8 +16,19 @@ const createDining: RequestHandler = catchAsync(async (req, res) => {
     message: 'Dining has been created successfully',
     data: result,
   })
+})*/
+
+export const getAllDinings: RequestHandler = catchAsync(async (req, res) => {
+  const getDinings = await getAllDiningService()
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: 'Dinings has been retrieved successfully',
+    data: getDinings,
+  })
 })
 
 export const DiningController = {
-  createDining,
+  // createDining,
+  getAllDinings,
 }

@@ -12,7 +12,6 @@ import status from 'http-status'
 
 export const getStudentController = async (req: Request, res: Response) => {
   try {
-    console.log('cookieeeeeeeeeee', req.cookies)
     const getStudent = await getAllStudentService()
     res.status(200).json({
       success: true,

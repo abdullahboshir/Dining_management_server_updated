@@ -5,6 +5,8 @@ const diningPoliciesSchema = new Schema<TDiningPolicies>(
   {
     mealCharge: { type: Number, default: 0 },
     specialMealCharge: { type: Number, default: 0 },
+    minimumDeposit: { type: Number, default: 0 },
+    reservedSafetyDeposit: { type: Number, default: 0 },
   },
   { _id: false },
 )
@@ -23,10 +25,9 @@ const diningSummarySchema = new Schema<TDiningSummary>(
 // Create a new Schema for Dining
 const diningSchema = new Schema<TDining>(
   {
-    hallId: {
+    hall: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Hall',
-      required: false,
     },
     diningName: {
       type: String,
@@ -47,6 +48,8 @@ diningSchema.pre('save', function (next) {
     this.diningPolicies = {
       mealCharge: 0,
       specialMealCharge: 0,
+      minimumDeposit: 0,
+      reservedSafetyDeposit: 0,
     }
   }
 

@@ -5,26 +5,28 @@ export type TMeal = {
   id: string
   student: Types.ObjectId
   mealStatus: 'off' | 'on'
+  mealCountUpdatedDate: Date
+  lastUpdatedDate: Date
   mealInfo: {
     [year: string]: {
       [month: string]: {
         maintenanceFee: number
         totalDeposit: number
         currentDeposit: number
-        previousRefunded: number
+        // previousRefunded: number
         dueMaintenanceFee: number
         totalMeals: number
         mealFee: number
         totalSpecialMeals: number
         specialMealFee: number
         totalCost: number
-        dueDeposite: number
-        refundable: number
+        // dueDeposite: number
+        refunded: number
       }
     }
   }
 }
 
 export interface TMealExists extends Model<TMeal> {
-  isMealExists(id: string): Promise<TMeal | null>
+  isMealExists(id: Types.ObjectId): Promise<TMeal | null>
 }

@@ -1,4 +1,4 @@
-import { model, Schema } from 'mongoose'
+import { model, Schema, Types } from 'mongoose'
 import { TMeal, TMealExists } from './meal.interface'
 
 // Define the main schema for meals
@@ -24,6 +24,14 @@ const mealSchema = new Schema<TMeal, TMealExists>(
     },
     mealStatus: { type: String, enum: ['off', 'on'], default: 'off' },
 
+    mealCountUpdatedDate: {
+      type: Date,
+      default: Date.now,
+    },
+    lastUpdatedDate: {
+      type: Date,
+      default: Date.now,
+    },
     mealInfo: {
       type: Schema.Types.Mixed,
       default: {},
@@ -32,7 +40,7 @@ const mealSchema = new Schema<TMeal, TMealExists>(
   { timestamps: true },
 )
 
-mealSchema.statics.isMealExists = async function (mealId: string) {
+mealSchema.statics.isMealExists = async function (mealId: Types.ObjectId) {
   const existingMeal = await Meal.findById({ _id: mealId })
   return existingMeal
 }

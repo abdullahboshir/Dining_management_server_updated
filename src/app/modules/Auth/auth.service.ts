@@ -10,7 +10,7 @@ import { sendEmail } from '../../utils/sendEmail'
 
 export const userLoginService = async (payload: TLoginUser) => {
   //   const isUserExists = await User.findOne({ id: payload.id })
-  const isUserExists = await User.isUserExistsByCustomId(payload.id)
+  const isUserExists = await User.isUserExistsByEmail(payload?.email)
 
   if (!isUserExists) {
     throw new AppError(status.NOT_FOUND, 'User is not found')

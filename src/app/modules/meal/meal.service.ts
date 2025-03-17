@@ -1,143 +1,264 @@
-import { Types } from 'mongoose'
+import { startSession, Types } from 'mongoose'
 import {
   currentDateBD,
   getFutureDate,
-  getLastDayOfMonth,
   previousDateBD,
 } from '../../utils/currentDateBD'
 import Student from '../Student/student.model'
-import { TMeal } from './meal.interface'
 import Meal from './meal.model'
 import { mealInfoObj } from './meal.const'
+import { Dining } from '../Dining/dining.model'
+import { Hall } from '../Hall/hall.model'
+import AppError from '../../errors/AppError'
+import status from 'http-status'
+import { countDueMaintenanceFee } from './meal.utils'
+import { USER_STATUS, USER_STATUS_ARRAY } from '../User/user.constant'
+
+export const getMealsService = async () => {
+  const data = await Meal.find().populate({
+    path: 'student',
+    populate: [{ path: 'hall' }, { path: 'dining' }],
+  })
+  return {
+    meta: {
+      total: 10,
+      page: 2,
+      limit: 5,
+    },
+    data,
+  }
+}
+
+// export const startMealUpdate = (mealId: Types.ObjectId) => {
+//   const updateInterval =
+//     process.env.NODE_ENV === 'development' ? 2000 : 24 * 60 * 60 * 1000
+//   // 2 seconds in dev, 24 hours in prod
+
+//   setInterval(async () => {
+//     try {
+//       const forceUpdate = process.env.NODE_ENV === 'development' // Force update every 2s in dev
+//       const updatedMeal = await updateMealInfoIfNeeded(mealId, forceUpdate)
+//       if (updatedMeal) {
+//         console.log('✅ Meal info updated:', updatedMeal.mealInfo)
+//       } else {
+//         console.log('⏳ Meal info check passed, no update needed.')
+//       }
+//     } catch (error) {
+//       console.error('Meal update failed:', error)
+//     }
+//   }, updateInterval)
+// }
+
+// export const updateMealInfoIfNeeded = async (
+//   mealId: Types.ObjectId,
+//   forceUpdate = false,
+// ) => {
+//   const meal = await Meal.findById(mealId)
+//   if (!meal) {
+//     throw new AppError(status.FORBIDDEN, 'The Meal does not exist!')
+//   }
+
+//   const { currentYear, currentMonth } = currentDateBD()
+//   const mealCharge = meal.mealInfo[currentYear]?.[currentMonth]?.mealFee || 0
+
+//   // Initialize mealInfo for the current year/month if missing
+//   if (!meal.mealInfo[currentYear]) {
+//     meal.mealInfo[currentYear] = {}
+//   }
+//   if (!meal.mealInfo[currentYear][currentMonth]) {
+//     meal.mealInfo[currentYear][currentMonth] = mealInfoObj
+//   }
+
+//   const now = new Date()
+//   const lastUpdateDiffHours =
+//     Math.abs(now.getTime() - meal.mealCountUpdatedDate.getTime()) / 3600000 // Convert ms to hours
+
+//   console.log(
+//     `⏳ Checking meal info... Last update: ${lastUpdateDiffHours.toFixed(2)} hours ago.`,
+//   )
+
+//   // ✅ In production: update only if 24 hours passed
+//   // ✅ In development: always update (forceUpdate = true)
+//   if (meal.mealStatus === 'on' && (forceUpdate || lastUpdateDiffHours >= 24)) {
+//     // Increase meal count
+//     const baseMealObj = meal.mealInfo[currentYear][currentMonth]
+//     const mealIncreamentAmount = 1
+//     const increamentTotal = baseMealObj.totalMeals + mealIncreamentAmount
+//     const multiplyMealCharge = mealCharge * mealIncreamentAmount
+//     const currentDeposit = baseMealObj.currentDeposit - multiplyMealCharge
+//     const totalCost = baseMealObj.totalCost + multiplyMealCharge
+
+//     const result = await Meal.findByIdAndUpdate(
+//       mealId,
+//       {
+//         $set: {
+//           [`mealInfo.${currentYear}.${currentMonth}.totalMeals`]:
+//             increamentTotal,
+//           [`mealInfo.${currentYear}.${currentMonth}.currentDeposit`]:
+//             currentDeposit,
+//           [`mealInfo.${currentYear}.${currentMonth}.totalCost`]: totalCost,
+//           mealCountUpdatedDate: now, // ✅ Ensure mealCountUpdatedDate updates
+//           lastUpdatedDate: now, // ✅ Always update lastUpdatedDate
+//         },
+//       },
+//       { new: true },
+//     )
+
+//     console.log(
+//       '✅ Meal info updated:',
+//       result?.mealInfo[currentYear][currentMonth],
+//     )
+//     return result
+//   }
+
+//   return null // ❌ No update was made
+// }
+
+// export const updateMealInfoIfDateChanged = async (mealId: Types.ObjectId) => {
+//   const meal = await Meal.findById(mealId)
+//   if (!meal) {
+//     throw new Error('Meal not found')
+//   }
+
+//   const { currentYear, currentMonth } = currentDateBD() // Get current year and month
+
+//   // Initialize mealInfo for current year and month if not already initialized
+//   if (!meal.mealInfo[currentYear]) {
+//     meal.mealInfo[currentYear] = {}
+//   }
+
+//   if (!meal.mealInfo[currentYear][currentMonth]) {
+//     meal.mealInfo[currentYear][currentMonth] = mealInfoObj
+//   }
+
+//   // Check if mealCountUpdateDate is older than 24 hours (only if mealStatus is "on")
+//   if (meal.mealStatus === 'on') {
+//     const now = new Date()
+//     const diffInHours =
+//       Math.abs(now.getTime() - meal.mealCountUpdatedDate.getTime()) /
+//       (1000 * 3600)
+
+//     // If more than 24 hours have passed, update the meal count and reset the meal count update date
+//     if (diffInHours >= 24) {
+//       meal.mealCountUpdatedDate = now // Update the meal count update date to the current date/time
+//       // Here you can add logic for updating meal count (totalMeals, specialMeal count etc.)
+//     }
+//   }
+
+//   // Save the updated meal record
+//   await meal.save()
+
+//   return meal
+// }
+
+// You can create other service methods here as necessary for other business logic
 
 const mealIntervals: { [key: string]: NodeJS.Timeout } = {}
-
 const startMealIncreament = (mealId: Types.ObjectId) => {
-  if (mealIntervals[mealId.toString()]) {
-    throw new Error('Meal increment is already running for this meal')
-  }
+  if (mealIntervals[mealId.toString()]) return
+
+  const updateIntervalShedule =
+    process.env.NODE_ENV === 'development' ? 2000 : 24 * 60 * 60 * 1000
 
   mealIntervals[mealId.toString()] = setInterval(
     async () => {
-      const meal = await Meal.findById({ _id: mealId })
-      const { currentYear, currentMonth, currentDay } = currentDateBD()
+      const [isMealExists, hall, dining] = await Promise.all([
+        Meal.isMealExists(mealId),
+        Hall.findOne(),
+        Dining.findOne(),
+      ])
 
-      if (!meal) {
-        throw new Error('Meal not found')
+      if (!isMealExists) {
+        stopMealIncrement(mealId)
+        return { status: false, message: 'the Meal is not exists! ' }
       }
 
-      //   if not present new year and new month then set
-      if (meal && meal.mealStatus === 'on') {
-        if (!meal.mealInfo[currentYear]) {
-          meal.mealInfo[currentYear] = {}
+      if (isMealExists.mealStatus === 'off') {
+        stopMealIncrement(mealId)
+        return { status: false, message: 'the Meal is not Off! ' }
+      }
+
+      const { currentYear, currentMonth } = currentDateBD()
+      const { previousYear, previousMonth } = previousDateBD()
+      // const { futureYear, futureMonth, futureDay } = getFutureDate(1, 1, 2)
+      // console.log(`Last day of the month is: `, previousYear, previousMonth)
+
+      const updateQuery: any = {}
+      const isExistsCurrentYear = isMealExists.mealInfo[currentYear] ?? {}
+      const isExistsCurrentMonth = isExistsCurrentYear[currentMonth] ?? null
+      if (!isExistsCurrentMonth) {
+        updateQuery[`mealInfo.${currentYear}.${currentMonth}`] = mealInfoObj
+      }
+
+      if (Object.keys(updateQuery).length) {
+        await Meal.findByIdAndUpdate(isMealExists._id, { $set: updateQuery })
+      }
+
+      // if the currentDeposit is less then 80 then apply the feature
+      const baseMealObj = isMealExists?.mealInfo[currentYear][currentMonth]
+      const mealCharge = (dining?.diningPolicies?.mealCharge as number) || 0
+      const maintenanceCharge = hall?.hallPolicies?.maintenanceCharge || 0
+      const isDueMaintenanceFee = baseMealObj.maintenanceFee < maintenanceCharge
+      const newDate = new Date()
+
+      const reservedSafetyDeposit =
+        dining?.diningPolicies &&
+        baseMealObj.currentDeposit <=
+          mealCharge +
+            (mealCharge / 100) * dining?.diningPolicies?.reservedSafetyDeposit
+
+      if (
+        (isMealExists.mealStatus === 'on' && reservedSafetyDeposit) ||
+        isDueMaintenanceFee
+      ) {
+        stopMealIncrement(isMealExists._id as Types.ObjectId)
+
+        await Meal.findByIdAndUpdate(
+          { _id: isMealExists._id },
+          { $set: { mealStatus: 'off' } },
+        )
+
+        return {
+          success: false,
+          statusCode: 403,
+          message: `Your current deposit is very low ${baseMealObj.currentDeposit}`,
         }
+      }
 
-        if (!meal.mealInfo[currentYear][currentMonth]) {
-          meal.mealInfo[currentYear][currentMonth] = mealInfoObj // the mealInfoObj import from constant
+      const mealIncreamentAmount = 1
+      const increamentTotal = baseMealObj.totalMeals + mealIncreamentAmount
 
-          const { previousYear, previousMonth } = previousDateBD()
+      const multiplyMealCharge = mealCharge * mealIncreamentAmount
+      const currentDeposit = baseMealObj.currentDeposit - multiplyMealCharge
+      const totalCost = baseMealObj.totalCost + multiplyMealCharge
 
-          await Meal.findByIdAndUpdate(
-            { _id: meal._id },
-            { $set: { mealInfo: meal.mealInfo } },
-          )
-        }
-
-        const { futureYear, futureMonth, futureDay } = getFutureDate(1, 1, 2)
-        // console.log(
-        //   `Future Year: ${futureYear}, Future Month: ${futureMonth}, Future Day: ${futureDay}`,
-        // )
-
-        // // Example usage:
-        // const year = '2025' // Year you want
-        // const monthh = 'November'
-
-        // const lastDay = getLastDayOfMonth(year, monthh)
-        const { previousYear, previousMonth } = previousDateBD()
-
-        console.log(`Last day of the month is: `, previousYear, previousMonth)
-        // if (lastDay === currentDay) {
-        //   if (
-        //     meal &&
-        //     meal.mealInfo[currentYear][currentMonth].currentDeposit >= 1
-        //   ) {
-        //     const refundableCost =
-        //       meal.mealInfo[currentYear][currentMonth].currentDeposit -
-        //       meal.mealInfo[currentYear][currentMonth].currentDeposit
-        //     await Meal.findByIdAndUpdate()
-        //   }
-        // }
-
-        const mealBaseObj = meal.mealInfo[currentYear][currentMonth]
-
-        // if the currentDeposit is less then 80 then apply the feature
-        if (
-          meal.mealStatus === 'on' &&
-          mealBaseObj.currentDeposit <= 80 + (80 / 100) * 10
-        ) {
-          try {
-            stopMealIncrement(meal._id)
-            await Meal.findByIdAndUpdate(
-              { _id: meal._id },
-              { $set: { mealStatus: 'off' } },
-            )
-            throw new Error(
-              `Your current deposit is very low ${mealBaseObj.currentDeposit}`,
-            )
-          } catch (error: any) {
-            console.log('got a error', error.message)
-          }
-        }
-
-        const increamentAmount = 1
-        const increamentTotal = (mealBaseObj.totalMeals += 1)
-
-        const multiplyMeal = 80 * increamentAmount
-        const currentDeposit = (mealBaseObj.currentDeposit -= multiplyMeal)
-        const totalCost = (mealBaseObj.totalCost += multiplyMeal)
-
-        const updatedMeal = await Meal.findByIdAndUpdate(
-          mealId,
-          {
-            $set: {
-              [`mealInfo.${currentYear}.${currentMonth}.totalMeals`]:
-                increamentTotal,
-              [`mealInfo.${currentYear}.${currentMonth}.currentDeposit`]:
-                currentDeposit,
-              [`mealInfo.${currentYear}.${currentMonth}.totalCost`]: totalCost,
-            },
+      const result = await Meal.findByIdAndUpdate(
+        mealId,
+        {
+          $set: {
+            [`mealInfo.${currentYear}.${currentMonth}.totalMeals`]:
+              increamentTotal,
+            [`mealInfo.${currentYear}.${currentMonth}.currentDeposit`]:
+              currentDeposit,
+            [`mealInfo.${currentYear}.${currentMonth}.totalCost`]: totalCost,
+            mealCountUpdatedDate: newDate,
           },
-          { new: true },
-        )
+        },
+        { new: true },
+      )
 
-        // if the currentDeposit is less then 80 then apply the feature
-        if (
-          meal.mealStatus === 'on' &&
-          mealBaseObj.currentDeposit <= 80 + (80 / 100) * 10
-        ) {
-          try {
-            stopMealIncrement(meal._id)
-            await Meal.findByIdAndUpdate(
-              { _id: meal._id },
-              { $set: { mealStatus: 'off' } },
-            )
-            throw new Error(
-              `Your current deposit is very low ${mealBaseObj.currentDeposit}`,
-            )
-          } catch (error: any) {
-            console.log('got a error', error.message)
-          }
-        }
-
-        console.log(
-          'meal onnnnnnnnnn',
-          updatedMeal?.mealInfo[currentYear][currentMonth],
-        )
-      } else {
-        console.log('meal increament is failed')
+      console.log(
+        'ddddddddddddddd',
+        result?.mealInfo[currentYear][currentMonth],
+      )
+      if (!result) {
+        throw new AppError(status.BAD_REQUEST, 'Meal update Failed')
       }
+
+      return result
     },
-    2000,
+    updateIntervalShedule,
+
     // 24 * 60 * 60 * 1000,
   )
 }
@@ -155,17 +276,21 @@ const stopMealIncrement = (mealId: Types.ObjectId) => {
 }
 
 export const updateMealStatusService = async (
-  mealId: string,
+  mealId: Types.ObjectId,
   mealStatus: string,
 ) => {
   if (!['on', 'off'].includes(mealStatus)) {
-    throw new Error('Invalid meal status')
+    throw new AppError(status.BAD_REQUEST, 'Invalid meal status')
   }
 
-  const isMealExists = await Meal.isMealExists(mealId)
+  const [isMealExists, hall, dining] = await Promise.all([
+    Meal.isMealExists(mealId),
+    Hall.findOne(),
+    Dining.findOne(),
+  ])
 
   if (!isMealExists) {
-    throw new Error('the Meal is not exists! ')
+    throw new AppError(status.FORBIDDEN, 'the Meal is not exists! ')
   }
 
   const isStudentExists = await Student.findOne({
@@ -174,38 +299,54 @@ export const updateMealStatusService = async (
   })
 
   if (!isStudentExists) {
-    throw new Error('the Meal is not exists! ')
+    throw new AppError(status.NOT_FOUND, 'The Student deos not exists! ')
   }
 
-  if (isStudentExists.status === 'inactive') {
-    throw new Error('The Student is inactive')
-  }
-
-  if (isStudentExists.status === 'blocked') {
-    throw new Error('The Student is blocked')
+  if (
+    [USER_STATUS.INACTIVE, USER_STATUS.BLOCKED].includes(isStudentExists.status)
+  ) {
+    throw new AppError(
+      status.BAD_REQUEST,
+      `The Student is ${isStudentExists.status}`,
+    )
   }
 
   const { currentYear, currentMonth } = currentDateBD()
 
-  //   if not present new year and new month then set
-  if (isMealExists && !isMealExists.mealInfo[currentYear]) {
-    isMealExists.mealInfo[currentYear] = {}
+  // //   if not present new year and new month then set
+
+  const updateQuery: any = {}
+  const isExistsCurrentYear = isMealExists.mealInfo[currentYear] ?? {}
+  const isExistsCurrentMonth = isExistsCurrentYear[currentMonth] ?? null
+  if (!isExistsCurrentMonth) {
+    updateQuery[`mealInfo.${currentYear}.${currentMonth}`] = mealInfoObj
   }
 
-  if (!isMealExists.mealInfo[currentYear][currentMonth]) {
-    isMealExists.mealInfo[currentYear][currentMonth] = mealInfoObj // the mealInfoObj import from constant
+  if (Object.keys(updateQuery).length) {
+    await Meal.findByIdAndUpdate(isMealExists._id, { $set: updateQuery })
+  }
 
-    await Meal.findByIdAndUpdate(
-      { _id: isMealExists._id },
-      { $set: { mealInfo: isMealExists.mealInfo } },
+  const maintenanceCharge =
+    (hall?.hallPolicies?.maintenanceCharge as number) || 0
+  const minimumDeposit = (dining?.diningPolicies?.minimumDeposit as number) || 0
+
+  const baseMealObj = isMealExists?.mealInfo[currentYear][currentMonth]
+  const isDueMaintenanceFee = baseMealObj.maintenanceFee < maintenanceCharge
+  const isDepositLow = baseMealObj.currentDeposit < minimumDeposit
+
+  if (mealStatus === 'on' && (isDueMaintenanceFee || isDepositLow)) {
+    throw new AppError(
+      status.BAD_REQUEST,
+      'Your current deposit is low, please deposit before',
     )
   }
 
-  if (
-    isMealExists.mealInfo[currentYear][currentMonth].maintenanceFee !== 300 &&
-    isMealExists.mealInfo[currentYear][currentMonth].currentDeposit < 200
-  ) {
-    throw new Error('Your current deposit is low, please deposit before')
+  if (mealStatus === 'on' && isMealExists.mealStatus === 'on') {
+    return { success: false, message: 'The meal is already on' }
+  }
+
+  if (mealStatus === 'off' && isMealExists.mealStatus === 'off') {
+    return { success: false, message: 'The meal is already off' }
   }
 
   const mealSwitch = await Meal.findByIdAndUpdate(
@@ -215,18 +356,15 @@ export const updateMealStatusService = async (
   )
 
   if (!mealSwitch) {
-    throw new Error('Update failed')
+    throw new AppError(status.BAD_REQUEST, 'Update failed')
   }
 
-  //   if meal is off
-  if (['off'].includes(mealStatus) && mealSwitch.mealStatus === 'off') {
-    stopMealIncrement(mealSwitch._id)
-  }
+  // if meal is off
+  mealSwitch?.mealStatus === 'on'
+    ? startMealIncreament(mealSwitch._id)
+    : stopMealIncrement(mealSwitch._id)
 
-  // if meal is on
-  if (['on'].includes(mealStatus) && mealSwitch.mealStatus === 'on') {
-    startMealIncreament(mealSwitch._id)
-  }
+  // mealSwitch.mealStatus === 'on' && startMealUpdate(mealSwitch._id)
 
   return mealSwitch
 }
@@ -234,13 +372,15 @@ export const updateMealStatusService = async (
 // -------------------------------------
 // add meal Deposit
 export const addMealDepositService = async (
-  mealId: string,
-  currentDeposit: number,
+  mealId: Types.ObjectId,
+  inputCurrentDeposit: number,
 ) => {
   const isMealExists = await Meal.isMealExists(mealId)
+  const hall = await Hall.find()
+  const dining = await Dining.find()
 
   if (!isMealExists) {
-    throw new Error('the Meal is not exists! ')
+    throw new AppError(status.NOT_FOUND, 'the Meal is not exists! ')
   }
 
   const isStudentExists = await Student.findOne({
@@ -248,24 +388,23 @@ export const addMealDepositService = async (
     _id: isMealExists.student,
   })
 
+  const maintenanceCharge = hall[0]?.hallPolicies?.maintenanceCharge as number
+  const minimumDeposit = dining[0]?.diningPolicies?.minimumDeposit as number
+
   if (!isStudentExists) {
-    throw new Error('the Meal is not exists! ')
+    throw new AppError(status.NOT_FOUND, 'the Meal is not exists! ')
   }
 
   if (isStudentExists.status === 'inactive') {
-    throw new Error('The Student is inactive')
+    throw new AppError(status.NOT_FOUND, 'The Student is inactive')
   }
 
   if (isStudentExists.status === 'blocked') {
-    throw new Error('The Student is blocked')
-  }
-
-  if (currentDeposit < 200) {
-    throw new Error('Minimum deposit at least 200 hundred')
+    throw new AppError(status.NOT_FOUND, 'The Student is blocked')
   }
 
   const { currentYear, currentMonth } = currentDateBD()
-
+  const { previousYear, previousMonth } = previousDateBD()
   //   const currentYear = '2026'
   //   const currentMonth = 'May'
 
@@ -273,116 +412,133 @@ export const addMealDepositService = async (
   if (isMealExists && !isMealExists.mealInfo[currentYear]) {
     isMealExists.mealInfo[currentYear] = {}
   }
-
   if (!isMealExists.mealInfo[currentYear][currentMonth]) {
     isMealExists.mealInfo[currentYear][currentMonth] = mealInfoObj // the mealInfoObj import from constant
+  }
 
-    const { previousYear, previousMonth } = previousDateBD()
-    const baseCurrentMealObj = isMealExists.mealInfo[currentYear][currentMonth]
-    const basePreviousMealObj =
-      isMealExists.mealInfo[previousYear][previousMonth]
+  // Example usage
 
-    const previousCurrentDeposit = basePreviousMealObj.currentDeposit
+  const session = await startSession()
+  const baseCurrentMealObj = isMealExists.mealInfo[currentYear][currentMonth]
+  const basePreviousMealObj = isMealExists.mealInfo[previousYear][previousMonth]
 
-    const addToCurrentDeposit = (baseCurrentMealObj.currentDeposit =
-      previousCurrentDeposit)
+  try {
+    session.startTransaction()
+    let result
 
-    let addToMaintenanceFee = 0
+    const isHavePreviousDeposit =
+      basePreviousMealObj &&
+      basePreviousMealObj?.currentDeposit > 0 &&
+      basePreviousMealObj?.totalDeposit > 0 &&
+      basePreviousMealObj?.maintenanceFee >= 0
+    if (isHavePreviousDeposit) {
+      const dueMaintenanceFee = await countDueMaintenanceFee(
+        isMealExists?.mealInfo,
+      )
+
+      let transferPreviousToCurrentDeposit =
+        basePreviousMealObj?.currentDeposit +
+        baseCurrentMealObj?.currentDeposit +
+        inputCurrentDeposit
+
+      const transferPreviousToTotalDeposit =
+        baseCurrentMealObj?.totalDeposit +
+        basePreviousMealObj?.currentDeposit +
+        inputCurrentDeposit
+
+      let isAvailableDepositForMaintenanceFee = 0
+      if (transferPreviousToCurrentDeposit > maintenanceCharge) {
+        transferPreviousToCurrentDeposit -= maintenanceCharge
+        isAvailableDepositForMaintenanceFee += maintenanceCharge
+      }
+
+      const calculateTotalDueMaintenanceFee =
+        dueMaintenanceFee * maintenanceCharge
+
+      result = await Meal.findByIdAndUpdate(
+        { _id: isMealExists._id },
+        {
+          $set: {
+            [`mealInfo.${previousYear}.${previousMonth}.currentDeposit`]: 0,
+            [`mealInfo.${currentYear}.${currentMonth}.currentDeposit`]:
+              transferPreviousToCurrentDeposit,
+            [`mealInfo.${currentYear}.${currentMonth}.totalDeposit`]:
+              transferPreviousToTotalDeposit,
+            [`mealInfo.${currentYear}.${currentMonth}.maintenanceFee`]:
+              isAvailableDepositForMaintenanceFee,
+            [`mealInfo.${currentYear}.${currentMonth}.dueMaintenanceFee`]:
+              calculateTotalDueMaintenanceFee,
+            [`mealInfo.${currentYear}.${currentMonth}.refunded`]:
+              basePreviousMealObj.currentDeposit,
+          },
+        },
+        { new: true, session },
+      )
+      return result
+    }
+
     if (
-      basePreviousMealObj.currentDeposit >= 300 &&
-      addToCurrentDeposit >= 300
+      baseCurrentMealObj.currentDeposit < minimumDeposit &&
+      inputCurrentDeposit < minimumDeposit
     ) {
-      addToMaintenanceFee = 300
-      baseCurrentMealObj.maintenanceFee += addToMaintenanceFee
-      baseCurrentMealObj.currentDeposit -= addToMaintenanceFee
+      throw new AppError(
+        status.BAD_REQUEST,
+        `First Deposit should be Minimum ${minimumDeposit}`,
+      )
     }
 
-    baseCurrentMealObj.previousRefunded = previousCurrentDeposit
+    let addToCurrentDeposit = basePreviousMealObj
+      ? baseCurrentMealObj.currentDeposit +
+        basePreviousMealObj.currentDeposit +
+        inputCurrentDeposit
+      : baseCurrentMealObj.currentDeposit + inputCurrentDeposit
 
-    baseCurrentMealObj.totalDeposit = previousCurrentDeposit
+    const addToTotalDeposit = basePreviousMealObj
+      ? baseCurrentMealObj.totalDeposit +
+        basePreviousMealObj.currentDeposit +
+        inputCurrentDeposit
+      : baseCurrentMealObj.totalDeposit + inputCurrentDeposit
 
-    basePreviousMealObj.refundable = previousCurrentDeposit
+    let addToMaintenanceFee
 
-    basePreviousMealObj.currentDeposit = 0
+    if (
+      (baseCurrentMealObj?.maintenanceFee < maintenanceCharge &&
+        addToCurrentDeposit >= maintenanceCharge) ||
+      (baseCurrentMealObj?.maintenanceFee < maintenanceCharge &&
+        baseCurrentMealObj?.currentDeposit > maintenanceCharge)
+    ) {
+      addToCurrentDeposit -= maintenanceCharge
 
-    await Meal.findByIdAndUpdate(
-      { _id: isMealExists._id },
-      {
-        $set: { mealInfo: isMealExists.mealInfo },
-      },
-    )
-  }
-
-  let result
-  if (
-    isMealExists.mealInfo[currentYear][currentMonth].maintenanceFee !== 300 &&
-    isMealExists.mealInfo[currentYear][currentMonth].totalDeposit === 0 &&
-    isMealExists.mealInfo[currentYear][currentMonth].currentDeposit === 0
-  ) {
-    if (currentDeposit < 500) {
-      throw new Error('First Deposit should be Minimum 500 hundred')
+      addToMaintenanceFee =
+        baseCurrentMealObj.maintenanceFee + maintenanceCharge
     }
-
-    const maintenanceFee = 300
-    const netCurrentDeposit = currentDeposit - maintenanceFee
-    const totalDeposit =
-      isMealExists.mealInfo[currentYear][currentMonth].totalDeposit +
-      netCurrentDeposit
 
     result = await Meal.findByIdAndUpdate(
       { _id: isMealExists._id },
       {
         $set: {
           [`mealInfo.${currentYear}.${currentMonth}.currentDeposit`]:
-            netCurrentDeposit,
+            addToCurrentDeposit,
+          [`mealInfo.${currentYear}.${currentMonth}.totalDeposit`]:
+            addToTotalDeposit,
           [`mealInfo.${currentYear}.${currentMonth}.maintenanceFee`]:
-            maintenanceFee,
-          [`mealInfo.${currentYear}.${currentMonth}.totalDeposit`]:
-            totalDeposit,
+            addToMaintenanceFee,
         },
       },
-      { new: true },
+      { new: true, session },
     )
-  } else {
-    const totalDeposit =
-      isMealExists.mealInfo[currentYear][currentMonth].totalDeposit +
-      currentDeposit
-    const netCurrentDeposit =
-      isMealExists.mealInfo[currentYear][currentMonth].currentDeposit +
-      currentDeposit
 
-    result = await Meal.findByIdAndUpdate(
-      { _id: isMealExists._id },
-      {
-        $set: {
-          [`mealInfo.${currentYear}.${currentMonth}.currentDeposit`]:
-            netCurrentDeposit,
-          [`mealInfo.${currentYear}.${currentMonth}.totalDeposit`]:
-            totalDeposit,
-        },
-      },
-      { new: true },
-    )
+    if (!result) {
+      throw new AppError(status.BAD_REQUEST, 'Failed to Deposit')
+    }
+
+    await session.commitTransaction()
+    await session.endSession()
+
+    return result
+  } catch (error: any) {
+    await session.abortTransaction()
+    await session.endSession()
+    throw new Error(error.message)
   }
-
-  //   const maintenanceFee = 300
-  //   const netCurrentDeposit = currentDeposit - maintenanceFee
-
-  //    result = await Meal.findByIdAndUpdate(
-  //     { _id: isMealExists._id },
-  //     {
-  //       $set: {
-  //         [`mealInfo.${currentYear}.${currentMonth}.currentDeposit`]:
-  //           netCurrentDeposit,
-  //         [`mealInfo.${currentYear}.${currentMonth}.maintenanceFee`]:
-  //           maintenanceFee,
-  //       },
-  //     },
-  //     { new: true },
-  //   )
-
-  if (!result) {
-    throw new Error('Failed to Deposit')
-  }
-  return result
 }

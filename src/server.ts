@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 import 'colors'
 import app from './app'
 import config from './app/config'
-import seedSuperAdmin from './app/DB'
+import { seedHallandDining, seedMeal, seedSuperAdmin } from './app/DB'
 
 let server: Server
 
@@ -13,13 +13,20 @@ async function main() {
       console.log('Database URL is missing'.red)
       return
     }
-    await mongoose.connect(config.db_url as string)
-    seedSuperAdmin()
+    const connection = await mongoose.connect(config.db_url as string)
+    // Get the database name
+
+    const dbName =
+      connection?.connection?.db && connection?.connection?.db?.databaseName
+
+    await seedSuperAdmin()
+    await seedHallandDining(dbName as string)
+    await seedMeal()
     server = app.listen(config.port, () => {
       console.log(`Example app listening on port ${config.port}`.green)
     })
-  } catch (err) {
-    console.log('got an error from server'.red)
+  } catch (err: any) {
+    console.log('got an error from server'.red, err?.message)
   }
 }
 

@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 import validator from 'validator'
 import { TAddress, TGuardian, TStudent } from './student.interface'
 
@@ -30,24 +30,19 @@ const addressSchema = new Schema<TAddress>(
 // Main Student Schema
 const studentSchema = new Schema<TStudent>(
   {
-    adminId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'admin',
-      required: true,
+    creator: {
+      type: String,
+      required: [true, 'ID is required'],
+      ref: 'User',
     },
-    hallId: {
+    hall: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Hall',
       required: true,
     },
-    diningId: {
+    dining: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Dining',
-      required: true,
-    },
-    managerId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'manager',
       required: true,
     },
     id: {
@@ -56,12 +51,6 @@ const studentSchema = new Schema<TStudent>(
       required: [true, 'Please provide a Student ID'],
       index: true,
       trim: true,
-      validate: {
-        validator: function (value: string) {
-          return /^[0-9]{13}$/.test(value.toString())
-        },
-        message: 'The Student ID must contain exactly 5 digits.',
-      },
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -89,23 +78,12 @@ const studentSchema = new Schema<TStudent>(
         type: String,
         required: true,
         trim: true,
-        validate: {
-          validator: function (value: string) {
-            const firstNameStr = value.charAt(0).toUpperCase() + value.slice(1)
-            return firstNameStr === value
-          },
-          message: 'First Letter should be a Uppercase',
-        },
       },
-      middleName: { type: String, required: true, trim: true },
+      middleName: { type: String, trim: true },
       lastName: {
         type: String,
         required: true,
         trim: true,
-        validate: {
-          validator: (value: string) => validator.isAlpha(value),
-          message: '{VALUE} is not valid',
-        },
       },
     },
     gender: {
@@ -164,6 +142,16 @@ const studentSchema = new Schema<TStudent>(
         message: 'The Seat number must contain exactly 2 digits.',
       },
     },
+    academicFaculty: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    academicDepartment: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     session: {
       type: String,
       required: [true, 'Please provide a Session of Student'],
@@ -191,18 +179,22 @@ const studentSchema = new Schema<TStudent>(
     },
     profileImg: {
       type: String,
+      default: '',
     },
     guardian: {
       type: guardianSchema,
       required: true,
+      default: {},
     },
     presentAddress: {
       type: addressSchema,
       required: true,
+      default: {},
     },
     permanentAddress: {
       type: addressSchema,
       required: true,
+      default: {},
     },
     meals: {
       type: Schema.Types.ObjectId,
@@ -214,90 +206,23 @@ const studentSchema = new Schema<TStudent>(
       enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
       required: false,
     },
-    academicDepartment: {
-      type: Schema.Types.ObjectId,
-      ref: 'AcademicDepartment',
-      required: true,
-    },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
   },
   { timestamps: true },
 )
 
-// Define pre-save middleware to update mealInfo dynamically based on year and month
-// studentSchema.pre('save', function (next) {
-//   const currentDate = new Date()
-//   const currentYear = currentDate.getFullYear().toString()
-//   const currentMonth = currentDate.toLocaleString('default', { month: 'long' })
+const capitalize = (str: string = '') =>
+  str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
 
-//   // Initialize mealInfo if it doesn't exist
-//   if (!this.meals) {
-//     this.meals = {}
-//   }
-
-//   // Create or update the dynamic key based on the current year and month
-//   this.meals[currentYear] = this.meals[currentYear] || {}
-//   this.meals[currentYear][currentMonth] = {
-//     mealStatus: 'off',
-//     maintenanceFee: 0,
-//     totalDeposit: 0,
-//     currentDeposit: 0,
-//     lastMonthRefund: 0,
-//     dueMaintenanceFee: 0,
-//     totalMeal: 0,
-//     mealCharge: 0,
-//     fixedMeal: 0,
-//     fixedMealCharge: 0,
-//     totalCost: 0,
-//     dueDeposite: 0,
-//     refundable: 0,
-//   }
-//   next()
-// })
-
-// another method pre function
-
-// // Pre-save middleware to handle dynamic updates to mealInfo
-// studentSchema.pre('save', function (next) {
-//     const currentDate = new Date();
-//     const currentYear = currentDate.getFullYear().toString();
-//     const currentMonth = currentDate.toLocaleString('default', { month: 'long' });
-
-//     // Initialize mealInfo if not already set
-//     if (!this.mealInfo) {
-//       this.mealInfo = new Map();
-//     }
-
-//     // Initialize the year map if not already set
-//     if (!this.mealInfo.has(currentYear)) {
-//       this.mealInfo.set(currentYear, new Map());
-//     }
-
-//     const mealInfoForMonth = {
-//       mealStatus: 'off',
-//       maintenanceFee: 0,
-//       totalDeposit: 0,
-//       currentDeposit: 0,
-//       lastMonthRefund: 0,
-//       dueMaintenanceFee: 0,
-//       totalMeal: 0,
-//       mealCharge: 0,
-//       fixedMeal: 0,
-//       fixedMealCharge: 0,
-//       totalCost: 0,
-//       dueDeposite: 0,
-//       refundable: 0,
-//     };
-
-//     // Set the mealInfo for the current month and year
-//     this.mealInfo.get(currentYear).set(currentMonth, mealInfoForMonth);
-
-//     next();
-//   });
-
-// set new index and unique
-// studentSchema.index({ studentId: 1, studentPin: 1 }, { unique: true })
+studentSchema.pre('save', function (next) {
+  try {
+    this.name.firstName &&= capitalize(this.name.firstName)
+    this.name.middleName &&= capitalize(this.name.middleName)
+    this.name.lastName &&= capitalize(this.name.lastName)
+    next()
+  } catch (error: any) {
+    next(error)
+  }
+})
 
 // Create the Mongoose model
 const Student = mongoose.model<TStudent>('Student', studentSchema)

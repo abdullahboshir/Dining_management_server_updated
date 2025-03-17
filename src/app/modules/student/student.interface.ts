@@ -31,35 +31,34 @@ export type TAdmissionDetails = {
 }
 
 export type TStudent = Document & {
-  adminId: Types.ObjectId
-  hallId: Types.ObjectId
-  diningId: Types.ObjectId
-  managerId: Types.ObjectId
+  creator: string
+  hall: Types.ObjectId
+  dining: Types.ObjectId
   id: string
   user: Types.ObjectId
+  role: 'superAdmin' | 'admin' | 'manager' | 'user' | 'moderator'
   studentPin: string
   name: TUserName
   gender: 'Male' | 'Female' | 'other'
   dateOfBirth: Date
   phoneNumber: string
   email: string
+  password: string
   roomNumber: number
   seatNumber: string
+  academicFaculty: string
+  academicDepartment: string
   session: string
   classRoll: number
   status: 'active' | 'inactive' | 'blocked'
-  department: string
   admissionDetails: TAdmissionDetails
   emergencyContact: string
-  password: string
-  role: 'superAdmin' | 'admin' | 'manager' | 'user' | 'moderator'
+  bloodGroup: TBloodGroup
   profileImg?: string
   guardian: TGuardian
   presentAddress: TAddress
   permanentAddress: TAddress
   meals: Types.ObjectId
-  bloodGroup: TBloodGroup
-  academicDepartment: Types.ObjectId
   isDeleted: boolean
   createdAt?: Date
   updatedAt?: Date

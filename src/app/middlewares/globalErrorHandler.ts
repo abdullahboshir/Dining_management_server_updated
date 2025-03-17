@@ -10,12 +10,14 @@ import AppError from '../errors/AppError'
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res: any, next) => {
   let statusCode = (status.INTERNAL_SERVER_ERROR as number) || 500
-  let message = err.message || 'Something went wrong!'
+  let success = false
+  let message = err || 'Something went wrong!'
+  let error = err
 
   let errorSources: TErrorSources = [
     {
       path: '',
-      message: 'Something went Wrong',
+      message: message,
     },
   ]
 

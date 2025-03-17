@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import validator from 'validator'
 import { TUser, UserModel } from './user.interface'
 import config from '../../config'
-import { USER_STATUS } from './user.constant'
+import { USER_STATUS_ARRAY } from './user.constant'
 
 const userSchema = new Schema<TUser, UserModel>(
   {
@@ -45,7 +45,7 @@ const userSchema = new Schema<TUser, UserModel>(
     },
     status: {
       type: String,
-      enum: USER_STATUS,
+      enum: USER_STATUS_ARRAY,
       default: 'active',
       set: (value: string) => value.toLowerCase(),
     },
@@ -79,6 +79,11 @@ userSchema.methods.comparePassword = async function (password: string) {
 
 userSchema.statics.isUserExistsByCustomId = async function (id: string) {
   const isUserExists = await User.findOne({ id }).select('+password')
+  return isUserExists
+}
+
+userSchema.statics.isUserExistsByEmail = async function (email: string) {
+  const isUserExists = await User.findOne({ email }).select('+password')
   return isUserExists
 }
 

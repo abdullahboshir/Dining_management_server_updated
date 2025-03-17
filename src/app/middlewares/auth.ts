@@ -40,7 +40,6 @@ const auth = (...requiredRole: TUserRole[]) => {
       throw new AppError(status.FORBIDDEN, 'this User is inactive')
     }
 
-    console.log('tokennnnnnnnnn', decoded)
     if (
       isUserExists?.passwordChangedAt &&
       User.isJWTIssuedBeforePasswordChanged(

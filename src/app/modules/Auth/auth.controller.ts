@@ -56,6 +56,13 @@ export const refreshTokenController: RequestHandler = catchAsync(
     const { refreshToken } = req.cookies
 
     const result = await refreshTokenService(refreshToken)
+
+    // const cookieOptions = {
+    //   secure: config.NODE_ENV === 'production',
+    //   httpOnly: true,
+    // }
+    // res.cookie('refreshToken', refreshToken, cookieOptions)
+
     sendResponse(res, {
       success: true,
       statusCode: status.OK,

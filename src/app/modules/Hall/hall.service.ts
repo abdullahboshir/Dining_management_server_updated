@@ -1,9 +1,11 @@
-import { startSession, Types } from 'mongoose'
-import { Dining } from '../Dining/dining.model'
-import { THall } from './hall.interface'
+// import { startSession, Types } from 'mongoose'
+// import { Dining } from '../Dining/dining.model'
+// import { THall } from './hall.interface'
 import { Hall } from './hall.model'
 
-export const createHallService = async (payload: THall) => {
+// no need to create dining manually because dining will be created automatically when server will be run.
+
+/*export const createHallService = async (payload: THall) => {
   const diningObj = {
     diningName: 'Dining of ' + payload.hallName,
     diningPolicies: {
@@ -36,7 +38,7 @@ export const createHallService = async (payload: THall) => {
     }
 
     if (newDining[0] && newDining[0]._id instanceof Types.ObjectId) {
-      payload.diningId = newDining[0]._id
+      payload.dining = newDining[0]._id
     } else {
       throw new Error('Invalid Dining data')
     }
@@ -48,8 +50,8 @@ export const createHallService = async (payload: THall) => {
     }
 
     const upatedDining = await Dining.findByIdAndUpdate(
-      result[0].diningId,
-      { $set: { hallId: result[0]._id } },
+      result[0].dining,
+      { $set: { hall: result[0]._id } },
       { session },
     )
 
@@ -65,4 +67,9 @@ export const createHallService = async (payload: THall) => {
     await session.endSession()
     throw new Error(error.message)
   }
+}*/
+
+export const getAllHallsService = async () => {
+  const getHalls = await Hall.findOne({})
+  return getHalls
 }

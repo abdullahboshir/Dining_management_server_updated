@@ -25,14 +25,9 @@ const hallSummarySchema = new Schema<THallSummary>(
 // Create a new Schema for Dining
 const hallSchema = new Schema<THall>(
   {
-    superAdminId: {
+    superAdmin: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'superAdmin',
-      required: true,
-    },
-    diningId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Dining',
       required: true,
     },
     hallName: {
@@ -43,27 +38,7 @@ const hallSchema = new Schema<THall>(
       minLength: [3, 'Name must be at least 3 characters'],
       maxLength: [100, 'Name is too large'],
     },
-    division: {
-      type: String,
-      required: [true, 'Division is required'],
-    },
-    district: {
-      type: String,
-      required: [true, 'District is required'],
-    },
-    subDistrict: {
-      type: String,
-      required: [true, 'Sub-district is required'],
-    },
-    alliance: {
-      type: String,
-      required: [true, 'Alliance is required'],
-    },
-    numberOfSeats: {
-      type: Number,
-      required: [true, 'Seats are required'],
-      min: [1, 'There must be at least one seat'],
-    },
+
     phoneNumber: {
       type: String,
       unique: true,
@@ -77,6 +52,18 @@ const hallSchema = new Schema<THall>(
         },
         message:
           'Invalid phone number format. It must be 11 digits and start with 01.',
+      },
+    },
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      unique: true,
+      index: true,
+      lowercase: true,
+      trim: true,
+      validate: {
+        validator: (value: string) => validator.isEmail(value),
+        message: '{VALUE} is not a valid email type',
       },
     },
     password: {
@@ -93,6 +80,18 @@ const hallSchema = new Schema<THall>(
         message: 'Password {VALUE} is not strong enough',
       },
     },
+
+    address: {
+      type: String,
+      required: [true, 'Please provide a Address'],
+      trim: true,
+    },
+
+    numberOfSeats: {
+      type: Number,
+      required: [true, 'Seats are required'],
+      min: [1, 'There must be at least one seat'],
+    },
     applicationStartDate: {
       type: Date,
     },
@@ -101,15 +100,6 @@ const hallSchema = new Schema<THall>(
     },
     hallPolicies: hallPoliciesSchema,
     hallSummary: hallSummarySchema,
-    passwordChangedAt: {
-      type: Date,
-    },
-    passwordResetToken: {
-      type: String,
-    },
-    passwordResetExpires: {
-      type: Date,
-    },
   },
   { timestamps: true },
 )

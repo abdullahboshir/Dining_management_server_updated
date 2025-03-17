@@ -4,9 +4,9 @@ import { UserRoutes } from '../modules/User/user.route'
 import { HallRoutes } from '../modules/Hall/hall.route'
 import { DiningRoutes } from '../modules/Dining/dining.route'
 import { MealRoutes } from '../modules/Meal/meal.route'
-import { academicFacultyRoutes } from '../modules/AcademicFaculty/academicFaculty.route'
-import { academicDepartmentRoutes } from '../modules/AcademicDepartment/academicDepartment.route'
 import { AuthRoutes } from '../modules/Auth/auth.route'
+import { ManagerRoutes } from '../modules/Manager/manager.route'
+import { AdminRoutes } from '../modules/Admin/admin.route'
 
 const router = Router()
 
@@ -16,20 +16,20 @@ const moduleRoutes = [
     route: HallRoutes,
   },
   {
-    path: '/users',
+    path: '/user',
     route: UserRoutes,
   },
   {
-    path: '/students',
+    path: '/student',
     route: StudentRoutes,
   },
   {
-    path: '/academic-faculties',
-    route: academicFacultyRoutes,
+    path: '/manager',
+    route: ManagerRoutes,
   },
   {
-    path: '/academic-department',
-    route: academicDepartmentRoutes,
+    path: '/admin',
+    route: AdminRoutes,
   },
   {
     path: '/dining',

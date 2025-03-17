@@ -14,21 +14,16 @@ export type THallSummary = {
 }
 
 export type THall = {
-  superAdminId: Types.ObjectId
-  diningId: Types.ObjectId
+  superAdmin: Types.ObjectId
+  dining: Types.ObjectId
   hallName: string
-  division: string
-  district: string
-  subDistrict: string
-  alliance: string
-  numberOfSeats: number
   phoneNumber: string
+  email: string
+  numberOfSeats: number
   password: string
+  address: string
   applicationStartDate: Date
   applicationEndDate: Date
   hallPolicies: THallPolicies
   hallSummary: THallSummary
-  passwordChangedAt: Date
-  passwordResetToken: string
-  passwordResetExpires: Date
 }
