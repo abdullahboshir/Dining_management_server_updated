@@ -41,7 +41,7 @@ const mealSchema = new Schema<TMeal, TMealExists>(
 )
 
 mealSchema.statics.isMealExists = async function (mealId: Types.ObjectId) {
-  const existingMeal = await Meal.findById({ _id: mealId })
+  const existingMeal = await Meal.findById({ _id: mealId }).populate('id')
   return existingMeal
 }
 
