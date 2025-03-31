@@ -6,16 +6,10 @@ const mealSchema = new Schema<TMeal, TMealExists>(
   {
     id: {
       type: String,
+      requered: true,
       unique: true,
-      required: [true, 'Please provide a Student ID'],
       index: true,
       trim: true,
-      validate: {
-        validator: function (value: string) {
-          return /^[0-9]{13}$/.test(value.toString())
-        },
-        message: 'The Student ID must contain exactly 5 digits.',
-      },
     },
     student: {
       type: Schema.Types.ObjectId,

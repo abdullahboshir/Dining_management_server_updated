@@ -5,7 +5,7 @@ import User from '../User/user.model'
 import { updateMutableData } from './student.utils'
 
 export const getAllStudentService = async () => {
-  const getStudents = await Student.find()
+  const getStudents = await Student.find().populate('user')
   return getStudents
 }
 

@@ -45,7 +45,7 @@ export type TStudent = Document & {
   email: string
   password: string
   roomNumber: number
-  seatNumber: string
+  seatNumber: number
   academicFaculty: string
   academicDepartment: string
   session: string

@@ -5,8 +5,11 @@ import status from 'http-status'
 import {
   addMealDepositService,
   getMealsService,
+  getSingleMealsService,
+  updateMaintenanceFeeService,
   updateMealStatusService,
 } from './meal.service'
+import { Types } from 'mongoose'
 
 export const getMeals: RequestHandler = catchAsync(async (req, res) => {
   const result = await getMealsService()
@@ -19,9 +22,20 @@ export const getMeals: RequestHandler = catchAsync(async (req, res) => {
   })
 })
 
+export const getSingleMeal: RequestHandler = catchAsync(async (req, res) => {
+  const { mealId } = req.params
+  const result = await getSingleMealsService(mealId)
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: 'Meals has been retrieved successfully',
+    data: result,
+  })
+})
+
 const updateMealStatus: RequestHandler = catchAsync(async (req, res) => {
   const { mealStatus } = req.body
-  const mealId = req.params.mealId
+  const mealId = new Types.ObjectId(req.params.mealId)
   const result = await updateMealStatusService(mealId, mealStatus)
   sendResponse(res, {
     success: true,
@@ -31,9 +45,21 @@ const updateMealStatus: RequestHandler = catchAsync(async (req, res) => {
   })
 })
 
+const updateMaintenanceFee: RequestHandler = catchAsync(async (req, res) => {
+  const body = req.body
+  const mealId = new Types.ObjectId(req.params.mealId)
+  const result = await updateMaintenanceFeeService(mealId, body)
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: 'Maintenance Fee has been updated successfully',
+    data: result,
+  })
+})
+
 const addCurrentDeposit: RequestHandler = catchAsync(async (req, res) => {
-  const { currentDeposit } = req.body
-  const mealId = req.params.mealId
+  const currentDeposit = Number(req.body?.currentDeposit)
+  const mealId = new Types.ObjectId(req.params.mealId)
 
   const result = await addMealDepositService(mealId, currentDeposit)
 
@@ -47,6 +73,8 @@ const addCurrentDeposit: RequestHandler = catchAsync(async (req, res) => {
 
 export const mealController = {
   getMeals,
+  getSingleMeal,
   updateMealStatus,
   addCurrentDeposit,
+  updateMaintenanceFee,
 }

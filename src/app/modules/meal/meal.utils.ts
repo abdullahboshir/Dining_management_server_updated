@@ -7,6 +7,14 @@ import { Hall } from '../Hall/hall.model'
 import { startSession } from 'mongoose'
 
 export const countDueMaintenanceFee = async (mealInfo: any) => {
+  const hall = await Hall.findOne({})
+
+  if (!hall) {
+    throw new AppError(status.NOT_FOUND, 'Hall do not exist!')
+  }
+
+  const maintenanceCharge = hall?.hallPolicies?.maintenanceCharge
+
   let dueTotalMaintenanceCount = 0
 
   try {
@@ -34,7 +42,7 @@ export const countDueMaintenanceFee = async (mealInfo: any) => {
       }
     }
 
-    return dueTotalMaintenanceCount
+    return dueTotalMaintenanceCount * maintenanceCharge
   } catch (error: any) {
     console.error('Error calculating due months:', error.message)
     throw error

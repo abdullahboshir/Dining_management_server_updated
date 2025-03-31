@@ -31,6 +31,7 @@ export const getAStudentController = async (req: Request, res: Response) => {
   try {
     const StudentId = req.params.studentId
     const getAStudent = await getAStudentService(StudentId)
+
     res.status(200).json({
       success: true,
       message: 'Student has been retrieved successfully',

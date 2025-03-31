@@ -133,13 +133,13 @@ const studentSchema = new Schema<TStudent>(
       },
     },
     seatNumber: {
-      type: String,
+      type: Number,
       required: [true, 'Seat Number is required'],
       validate: {
-        validator: function (value: string) {
-          return /^[0-9]{2}$/.test(value.toString())
+        validator: function (value: number) {
+          return /^[0-9]{1}$/.test(value.toString())
         },
-        message: 'The Seat number must contain exactly 2 digits.',
+        message: 'The Seat number must contain exactly 1 digits.',
       },
     },
     academicFaculty: {

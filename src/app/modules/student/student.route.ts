@@ -11,7 +11,7 @@ import { USER_ROLE } from '../User/user.constant'
 const router = express.Router()
 
 router.get('/getStudents', getStudentController)
-router.get('/getStudent/:studentId', auth(), getAStudentController)
+router.get('/:studentId', getAStudentController)
 router.delete('/:studentId', deleteStudentController)
 router.patch('/:studentId', updateStudentController)
 

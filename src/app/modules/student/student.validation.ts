@@ -47,7 +47,7 @@ const studentValidationSchema = z.object({
     .max(999, 'Room Number must be 3 digits'),
   seatNumber: z
     .string()
-    .regex(/^\d{2}$/, 'Seat Number must be exactly 2 digits'),
+    .regex(/^\d{1}$/, 'Seat Number must be exactly 1 digits'),
   academicFaculty: z.string().min(1, 'Academic Faculty is required').trim(),
   academicDepartment: z
     .string()

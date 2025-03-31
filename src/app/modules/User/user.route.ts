@@ -26,7 +26,6 @@ router.post(
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   upload.single('file'),
   (req: Request, res: Response, next: NextFunction) => {
-    console.log('ddddddddddddddd', req.body)
     req.body = JSON.parse(req.body.data)
     next()
   },
@@ -45,6 +44,8 @@ router.post(
   validateRequest(adminValidationSchema),
   UserController.createAdmin,
 )
+
+router.patch('/status/:userId', UserController.updateUserStatus)
 
 router.get(
   '/me',

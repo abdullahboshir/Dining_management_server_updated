@@ -13,14 +13,12 @@ export type TMeal = {
         maintenanceFee: number
         totalDeposit: number
         currentDeposit: number
-        // previousRefunded: number
         dueMaintenanceFee: number
         totalMeals: number
         mealFee: number
         totalSpecialMeals: number
         specialMealFee: number
         totalCost: number
-        // dueDeposite: number
         refunded: number
       }
     }

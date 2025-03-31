@@ -298,6 +298,21 @@ export const createAdminService = async (
   }
 }
 
+export const updateUserStatusService = async (
+  id: Types.ObjectId,
+  status: string,
+) => {
+  const result = await User.findOneAndUpdate(
+    id,
+    {
+      $set: { status },
+    },
+    { new: true },
+  )
+
+  return result
+}
+
 export const getMeService = async (id: string, role: string) => {
   let result = null
 

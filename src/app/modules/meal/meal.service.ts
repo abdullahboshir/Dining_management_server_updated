@@ -17,19 +17,33 @@ import {
 } from './meal.utils'
 import { USER_STATUS, USER_STATUS_ARRAY } from '../User/user.constant'
 
+const { currentYear, currentMonth, currentDay } = currentDateBD()
 export const getMealsService = async () => {
-  const data = await Meal.find().populate({
+  const meals = await Meal.find().populate({
     path: 'student',
-    populate: [{ path: 'hall' }, { path: 'dining' }],
+    populate: [{ path: 'hall' }, { path: 'dining' }, { path: 'user' }],
   })
+
+  if (!meals) {
+    return { status: false, message: 'the Meal is not exists! ' }
+  }
+
   return {
     meta: {
       total: 10,
       page: 2,
       limit: 5,
     },
-    data,
+    data: meals,
   }
+}
+
+export const getSingleMealsService = async (id: string) => {
+  const data = await Meal.findById(id).populate({
+    path: 'student',
+    populate: [{ path: 'hall' }, { path: 'dining' }],
+  })
+  return data
 }
 
 const mealIntervals: Map<string, NodeJS.Timeout> = new Map()
@@ -50,8 +64,6 @@ const startMealIncrement = async (mealId: Types.ObjectId) => {
     isRunning.add(mealId.toString())
 
     try {
-      const { currentYear, currentMonth, currentDay } = currentDateBD()
-
       // if (currentDay === 1) {
       const isHavePreviousDeposit = await calculationPreviousDeposit()
       if (isHavePreviousDeposit) {
@@ -72,6 +84,28 @@ const startMealIncrement = async (mealId: Types.ObjectId) => {
         stopMealIncrement(mealId)
         return { status: false, message: 'the Meal is not exists! ' }
       }
+
+      const haveCountDueMaintenanceFee = await countDueMaintenanceFee(
+        isMealExists?.mealInfo,
+      )
+
+      const dueMaintenanceFeeUpdated = await Meal.findByIdAndUpdate(
+        mealId,
+        {
+          $set: {
+            [`mealInfo.${currentYear}.${currentMonth}.dueMaintenanceFee`]:
+              haveCountDueMaintenanceFee,
+            // mealCountUpdatedDate: newDate,
+          },
+        },
+        { new: true },
+      )
+
+      if (!dueMaintenanceFeeUpdated) {
+        throw new AppError(status.BAD_REQUEST, 'Meal update Failed')
+      }
+
+      console.log('dddddddddddggggggggggg', haveCountDueMaintenanceFee)
 
       const isStudentExists = (await Student.findOne({
         id: isMealExists.id,
@@ -152,6 +186,8 @@ const startMealIncrement = async (mealId: Types.ObjectId) => {
               increamentTotal,
             [`mealInfo.${currentYear}.${currentMonth}.currentDeposit`]:
               currentDeposit,
+            [`mealInfo.${currentYear}.${currentMonth}.dueMaintenanceFee`]:
+              haveCountDueMaintenanceFee,
             [`mealInfo.${currentYear}.${currentMonth}.totalCost`]: totalCost,
             mealCountUpdatedDate: newDate,
           },
@@ -439,3 +475,44 @@ export const addMealDepositService = async (
 //   }, updateIntervalSchedule)
 // }
 // runUpdate() // Start the loop
+
+export const updateMaintenanceFeeService = async (
+  id: Types.ObjectId,
+  payload: { year: string; month: string },
+) => {
+  const { year, month } = payload
+  const [meal, hall] = await Promise.all([
+    Meal.isMealExists(id),
+    Hall.findOne(),
+  ])
+
+  if (!meal) {
+    throw new AppError(status.NOT_FOUND, 'the Meal is not exists! ')
+  }
+
+  const isStudentExists = await Student.findOne({
+    id: meal.id,
+    _id: meal.student,
+  })
+
+  if (!isStudentExists) {
+    throw new AppError(status.NOT_FOUND, 'the Meal is not exists! ')
+  }
+
+  if (
+    [USER_STATUS.INACTIVE, USER_STATUS.BLOCKED].includes(isStudentExists.status)
+  ) {
+    throw new AppError(
+      status.BAD_REQUEST,
+      `The Student is ${isStudentExists.status}`,
+    )
+  }
+
+  const update = await Meal.findByIdAndUpdate(id, {
+    $set: {
+      [`mealInfo.${year}.${month}.maintenanceFee`]:
+        hall?.hallPolicies?.maintenanceCharge,
+    },
+  })
+  return update
+}
