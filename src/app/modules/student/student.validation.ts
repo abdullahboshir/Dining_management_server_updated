@@ -21,7 +21,7 @@ const addressSchema = z.object({
 
 // Main Student Schema
 const studentValidationSchema = z.object({
-  creator: z.string().min(1, 'ID is required'),
+  createdBy: z.string().min(1, 'ID is required'),
   hall: z.string().min(1, 'Hall is required'),
   dining: z.string().min(1, 'Dining is required'),
   user: z.string().min(1, 'User ID is required'),

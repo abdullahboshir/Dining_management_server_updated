@@ -20,7 +20,7 @@ const userNameSchema = z.object({
 
 // Zod schema for the Manager object
 export const adminValidationSchema = z.object({
-  creator: z.string().min(1, 'Creator ID is required'),
+  createdBy: z.string().min(1, 'createdBy ID is required'),
   hall: z.string().regex(objectIdRegex, 'Invalid Hall format'),
   dining: z.string().regex(objectIdRegex, 'Invalid dining format'),
   user: z.string().min(1, 'User ID is required'),
@@ -36,7 +36,7 @@ export const adminValidationSchema = z.object({
       message: '{VALUE} is not a valid gender',
     }),
   dateOfBirth: z.date().optional(),
-  contactNumber: z
+  phoneNumber: z
     .string()
     .min(1, 'Phone Number is required')
     .regex(

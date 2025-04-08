@@ -31,7 +31,7 @@ export type TAdmissionDetails = {
 }
 
 export type TStudent = Document & {
-  creator: string
+  createdBy: Types.ObjectId
   hall: Types.ObjectId
   dining: Types.ObjectId
   id: string

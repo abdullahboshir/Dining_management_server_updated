@@ -9,6 +9,8 @@ import { managerValidationSchema } from '../Manager/manager.validation'
 import { adminValidationSchema } from '../Admin/admin.validation'
 const router = express.Router()
 
+const { superAdmin, admin, manager, moderator, student } = USER_ROLE
+
 router.post(
   '/create-student',
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
@@ -38,6 +40,7 @@ router.post(
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   upload.single('file'),
   (req: Request, res: Response, next: NextFunction) => {
+    console.log('jjjjjjjjjjjjjjjjj', JSON.parse(req.body.data))
     req.body = JSON.parse(req.body.data)
     next()
   },
@@ -49,7 +52,7 @@ router.patch('/status/:userId', UserController.updateUserStatus)
 
 router.get(
   '/me',
-  auth('student', 'moderator', 'manager', 'admin'),
+  auth(superAdmin, admin, manager, moderator, student),
   UserController.getMe,
 )
 

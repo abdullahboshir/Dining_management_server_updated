@@ -18,7 +18,7 @@ export type TUserName = {
 }
 
 export type TManager = {
-  creator: string
+  createdBy: Types.ObjectId
   hall: Types.ObjectId
   dining: Types.ObjectId
   id: string
@@ -27,7 +27,7 @@ export type TManager = {
   gender: TGender
   dateOfBirth?: Date
   email: string
-  contactNumber: string
+  phoneNumber: string
   emergencyContactNo: string
   bloogGroup?: TBloodGroup
   presentAddress: string

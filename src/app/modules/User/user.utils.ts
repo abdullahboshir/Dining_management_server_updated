@@ -1,98 +1,80 @@
+import AppError from '../../errors/AppError'
+import { currentDateBD } from '../../utils/currentDateBD'
 import { TStudent } from '../Student/student.interface'
+import { USER_ROLE } from './user.constant'
 import User from './user.model'
 
-const findLastUser = async () => {
-  const lastUser = await User.findOne(
-    {
-      role: 'student',
-    },
-    {
-      id: 1,
-      _id: 0,
-    },
-  )
-    .sort({ createdAt: -1 })
-    .lean()
-  return lastUser?.id ? lastUser.id : undefined
-}
+// Date
+const { currentYear, currentMonth, currentDay } = currentDateBD()
+const dateCode = `${currentYear}${currentMonth}${currentDay}`
 
-export const generatedStudentId = async (payload: TStudent) => {
-  const lastUserId = await findLastUser()
-  let increamentId
+export const findLastUser = async (
+  role: string,
+): Promise<string | undefined> => {
+  try {
+    const lastUser = await User.findOne({ role }, { id: 1 })
+      .sort({ createdAt: -1 })
+      .lean()
 
-  let generatedId = '0'
-
-  if (lastUserId) {
-    generatedId = lastUserId?.substring(9)
+    return typeof lastUser?.id === 'string' ? lastUser.id : undefined
+  } catch (error) {
+    console.error('Error fetching last student user:', error)
+    return undefined
   }
-  increamentId = (Number(generatedId) + 1).toString().padStart(4, '0')
-  increamentId = `${payload.session}${payload.roomNumber}${payload.seatNumber}${increamentId}`
-
-  return increamentId
 }
 
-// manager ID
-export const findLastManager = async () => {
-  const lastManager = await User.findOne(
-    {
-      role: 'manager',
-    },
-    {
-      id: 1,
-      _id: 0,
-    },
-  )
-    .sort({
-      createdAt: -1,
-    })
-    .lean()
+export const generateIncreament = (lastIncrement: string | undefined) => {
+  try {
+    let newIncrement = '00001'
 
-  return lastManager?.id ? lastManager.id.substring(2) : undefined
+    if (lastIncrement) {
+      const match = lastIncrement.match(/^(.*)-(\d{5})-(\d{4}[A-Za-z]+[0-9]+)$/)
+      if (match && match[2]) {
+        const lastIncrement = parseInt(match[2], 10)
+        newIncrement = String(lastIncrement + 1).padStart(5, '0')
+      }
+    }
+    return newIncrement
+  } catch (error) {
+    console.error('Error fetching last student user:', error)
+    return undefined
+  }
 }
 
-// Admin ID
-export const findLastAdmin = async () => {
-  const lastAdmin = await User.findOne(
-    {
-      role: 'admin',
-    },
-    {
-      id: 1,
-      _id: 0,
-    },
-  )
-    .sort({
-      createdAt: -1,
-    })
-    .lean()
+export const generateStudentId = async (payload: TStudent): Promise<string> => {
+  const { academicFaculty, session, classRoll, roomNumber, seatNumber } =
+    payload || {}
 
-  return lastAdmin?.id ? lastAdmin.id.substring(2) : undefined
-}
-
-export const generatedManagerId = async () => {
-  let currentId = (0).toString()
-  const lastManagerId = await findLastManager()
-
-  if (lastManagerId) {
-    currentId = lastManagerId.substring(2)
+  if (!academicFaculty || !session || !roomNumber || !seatNumber) {
+    throw new Error('Missing required student fields for ID generation')
   }
 
-  let incrementId = (Number(currentId) + 1).toString().padStart(4, '0')
+  const facultyName = String(academicFaculty).padStart(2, '0')
+  const sessionCode = String(session).replace(/\D/g, '')
+  const roomCode = String(roomNumber).padStart(3, '0')
+  const seatCode = String(seatNumber).padStart(2, '0')
 
-  incrementId = `M-${incrementId}`
-  return incrementId
+  // Find last user ID
+  const lastUserId = await findLastUser(USER_ROLE?.student)
+  const newIncrement = generateIncreament(lastUserId)
+
+  const finalId = `${facultyName}${sessionCode}${classRoll}${roomCode}${seatCode}-${newIncrement}-${dateCode}`
+
+  return finalId
 }
 
-export const generatedAdminId = async () => {
-  let currentId = (0).toString()
-  const lastManagerId = await findLastAdmin()
+export const generateAdminId = async () => {
+  const lastAdminId = await findLastUser(USER_ROLE?.admin)
+  const newIncrement = generateIncreament(lastAdminId)
 
-  if (lastManagerId) {
-    currentId = lastManagerId.substring(2)
-  }
+  const finalId = `${USER_ROLE?.admin}-${newIncrement}-${dateCode}`
+  return finalId
+}
 
-  let incrementId = (Number(currentId) + 1).toString().padStart(4, '0')
+export const generateManagerId = async () => {
+  const lastManagerId = await findLastUser(USER_ROLE?.manager)
+  const newIncrement = generateIncreament(lastManagerId)
 
-  incrementId = `A-${incrementId}`
-  return incrementId
+  const finalId = `${USER_ROLE?.manager}-${newIncrement}-${dateCode}`
+  return finalId
 }

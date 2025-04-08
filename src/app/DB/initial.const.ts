@@ -1,10 +1,12 @@
+import config from '../config'
+
 export const initialHallObj = (superAdminObjectId: any) => ({
   superAdmin: superAdminObjectId,
   hallName: 'Nazrul Hall',
   numberOfSeats: 500,
   phoneNumber: '01500000000',
   email: 'example@gmail.com',
-  password: '@Unknown2025@',
+  password: config?.hall_pass,
   address: 'Dharmapur, Sadar Dakshin, Cumilla, Chattagram, Bangladesh',
   applicationStartDate: new Date(),
   applicationEndDate: new Date(),

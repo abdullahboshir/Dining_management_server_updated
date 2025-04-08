@@ -30,8 +30,8 @@ const addressSchema = new Schema<TAddress>(
 // Main Student Schema
 const studentSchema = new Schema<TStudent>(
   {
-    creator: {
-      type: String,
+    createdBy: {
+      type: Schema.Types.ObjectId,
       required: [true, 'ID is required'],
       ref: 'User',
     },

@@ -14,6 +14,21 @@ const userSchema = new Schema<TUser, UserModel>(
       index: true,
       trim: true,
     },
+    phoneNumber: {
+      type: String,
+      required: [true, 'Phone Number is required'],
+      unique: true,
+      index: true,
+      trim: true,
+      validate: {
+        validator(value) {
+          const phoneRegex = /^01\d{9}$/
+          return phoneRegex.test(value)
+        },
+        message:
+          'Invalid phone number format. It must be 11 digits and start with 01.',
+      },
+    },
     email: {
       type: String,
       required: [true, 'Email is required'],
@@ -28,9 +43,19 @@ const userSchema = new Schema<TUser, UserModel>(
     },
     password: {
       type: String,
-      required: true,
-      select: false,
+      validate: {
+        validator: (value: string) =>
+          validator.isStrongPassword(value, {
+            minLength: 8,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 1,
+          }),
+        message: 'Password {VALUE} is not strong enough',
+      },
     },
+    fullName: { type: String, required: true },
     needsPasswordChange: {
       type: Boolean,
       default: true,
@@ -49,6 +74,7 @@ const userSchema = new Schema<TUser, UserModel>(
       default: 'active',
       set: (value: string) => value.toLowerCase(),
     },
+    profileImg: String,
     isDeleted: {
       type: Boolean,
       default: false,
@@ -56,8 +82,20 @@ const userSchema = new Schema<TUser, UserModel>(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 )
+
+const roleVirtuals = ['student', 'admin', 'manager', 'superAdmin', 'moderator']
+roleVirtuals.forEach((role) => {
+  userSchema.virtual(role, {
+    ref: role.charAt(0).toUpperCase() + role.slice(1), // 'student' → 'Student'
+    localField: 'id',
+    foreignField: 'user',
+    justOne: true,
+  })
+})
 
 userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(

@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express'
-import httpStatus from 'http-status'
+import status from 'http-status'
 import {
   createAdminService,
   createManagerService,
@@ -16,7 +16,7 @@ const createStudent: RequestHandler = catchAsync(async (req, res) => {
   const result = await createStudentService(password, studentData, req.file)
   sendResponse(res, {
     success: true,
-    statusCode: httpStatus.OK,
+    statusCode: status.OK,
     message: 'Student has been created successfully',
     data: result,
   })
@@ -27,7 +27,7 @@ const createManager: RequestHandler = catchAsync(async (req, res) => {
   const result = await createManagerService(password, managerData, req.file)
   sendResponse(res, {
     success: true,
-    statusCode: httpStatus.OK,
+    statusCode: status.OK,
     message: 'Manager has been created successfully',
     data: result,
   })
@@ -35,11 +35,10 @@ const createManager: RequestHandler = catchAsync(async (req, res) => {
 
 const createAdmin: RequestHandler = catchAsync(async (req, res) => {
   const { password, adminData } = req.body
-  console.log('admin dataaaaaaaaa', req.body)
   const result = await createAdminService(password, adminData, req.file)
   sendResponse(res, {
     success: true,
-    statusCode: httpStatus.OK,
+    statusCode: status.OK,
     message: 'Admin has been created successfully',
     data: result,
   })
@@ -52,7 +51,7 @@ const updateUserStatus: RequestHandler = catchAsync(async (req, res) => {
 
   sendResponse(res, {
     success: true,
-    statusCode: httpStatus.OK,
+    statusCode: status.OK,
     message: 'User Status has been updated successfully',
     data: result,
   })
@@ -64,7 +63,7 @@ const getMe: RequestHandler = catchAsync(async (req, res) => {
   const result = await getMeService(userId, role)
   sendResponse(res, {
     success: true,
-    statusCode: httpStatus.OK,
+    statusCode: status.OK,
     message: 'User has been retrieved successfully',
     data: result,
   })

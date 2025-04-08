@@ -5,9 +5,9 @@ import Student from '../Student/student.model'
 import { TUser } from './user.interface'
 import User from './user.model'
 import {
-  generatedAdminId,
-  generatedManagerId,
-  generatedStudentId,
+  generateAdminId,
+  generateManagerId,
+  generateStudentId,
 } from './user.utils'
 import { TMeal } from '../Meal/meal.interface'
 import Meal from '../Meal/meal.model'
@@ -16,10 +16,7 @@ import { currentDateBD } from '../../utils/currentDateBD'
 import { Hall } from '../Hall/hall.model'
 import { Dining } from '../Dining/dining.model'
 import { USER_ROLE } from './user.constant'
-import { verifyToken } from '../Auth/auth.utils'
-import status from 'http-status'
 import AppError from '../../errors/AppError'
-import { JwtPayload } from 'jsonwebtoken'
 import { sendImageToCloudinary } from '../../utils/IMGUploader'
 import { Manager } from '../Manager/manager.model'
 import { Admin } from '../Admin/admin.model'
@@ -57,7 +54,7 @@ export const createStudentService = async (
   try {
     //   start session
     session.startTransaction()
-    const id = await generatedStudentId(studentData)
+    const id = await generateStudentId(studentData)
 
     if (file) {
       const imgName = `${studentData.name.firstName}${id}`
@@ -67,14 +64,18 @@ export const createStudentService = async (
         imgPath,
       )) as any
       studentData.profileImg = secure_url
+      userData.profileImg = secure_url
     } else {
     }
 
     // create User
     userData.id = id
     userData.password = password || config.default_pass
-    userData.role = USER_ROLE.student
-    userData.email = studentData.email
+    userData.role = USER_ROLE?.student
+    userData.email = studentData?.email
+    userData.phoneNumber = studentData?.phoneNumber
+    const { firstName, middleName, lastName } = studentData?.name
+    userData.fullName = firstName + ' ' + middleName + ' ' + lastName
 
     const newUser = await User.create([userData], { session })
 
@@ -176,7 +177,7 @@ export const createManagerService = async (
   try {
     //   start session
     session.startTransaction()
-    const id = await generatedManagerId()
+    const id = await generateManagerId()
 
     if (file) {
       const imgName = `${managerData.name.firstName}${id}`
@@ -186,6 +187,7 @@ export const createManagerService = async (
         imgPath,
       )) as any
       managerData.profileImg = secure_url
+      userData.profileImg = secure_url
     } else {
     }
 
@@ -194,6 +196,9 @@ export const createManagerService = async (
     userData.password = password || config.default_pass
     userData.role = USER_ROLE.manager
     userData.email = managerData.email
+    userData.phoneNumber = managerData?.phoneNumber
+    const { firstName, middleName, lastName } = managerData?.name
+    userData.fullName = firstName + ' ' + middleName + ' ' + lastName
 
     const newUser = await User.create([userData], { session })
 
@@ -252,7 +257,7 @@ export const createAdminService = async (
   try {
     //   start session
     session.startTransaction()
-    const id = await generatedAdminId()
+    const id = await generateAdminId()
 
     if (file) {
       const imgName = `${adminData.name.firstName}${id}`
@@ -262,6 +267,7 @@ export const createAdminService = async (
         imgPath,
       )) as any
       adminData.profileImg = secure_url
+      userData.profileImg = secure_url
     } else {
     }
 
@@ -270,6 +276,9 @@ export const createAdminService = async (
     userData.password = password || config.default_pass
     userData.role = USER_ROLE.admin
     userData.email = adminData.email
+    userData.phoneNumber = adminData?.phoneNumber
+    const { firstName, middleName, lastName } = adminData?.name
+    userData.fullName = firstName + ' ' + middleName + ' ' + lastName
 
     const newUser = await User.create([userData], { session })
 
@@ -329,9 +338,8 @@ export const getMeService = async (id: string, role: string) => {
   if (role === USER_ROLE.admin) {
     result = await Admin.findOne({ id }).populate('user')
   }
-  // if (role === USER_ROLE.superAdmin) {
-  //   result = await Student.findOne({ id }).populate('user')
-  // }
-
+  if (role === USER_ROLE.superAdmin) {
+    result = await User.findOne({ id })
+  }
   return result
 }

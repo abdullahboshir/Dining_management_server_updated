@@ -1,6 +1,5 @@
 import { RequestHandler } from 'express'
 import catchAsync from '../../utils/catchAsync'
-import { createAcademicFacultyService } from '../AcademicFaculty/academicFaculty.service'
 import sendResponse from '../../utils/sendRespnse'
 import status from 'http-status'
 import {

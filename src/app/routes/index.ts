@@ -7,6 +7,7 @@ import { MealRoutes } from '../modules/Meal/meal.route'
 import { AuthRoutes } from '../modules/Auth/auth.route'
 import { ManagerRoutes } from '../modules/Manager/manager.route'
 import { AdminRoutes } from '../modules/Admin/admin.route'
+import { NoticeRoutes } from '../modules/Notice/notice.route'
 
 const router = Router()
 
@@ -14,6 +15,10 @@ const moduleRoutes = [
   {
     path: '/hall',
     route: HallRoutes,
+  },
+  {
+    path: '/notice',
+    route: NoticeRoutes,
   },
   {
     path: '/user',

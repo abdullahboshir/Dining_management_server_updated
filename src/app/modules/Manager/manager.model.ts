@@ -24,8 +24,8 @@ const userNameSchema = new Schema<TUserName>({
 
 const managerSchema = new Schema<TManager, ManagerModel>(
   {
-    creator: {
-      type: String,
+    createdBy: {
+      type: Schema.Types.ObjectId,
       required: [true, 'ID is required'],
       ref: 'User',
     },
@@ -63,7 +63,7 @@ const managerSchema = new Schema<TManager, ManagerModel>(
       required: [true, 'Gender is required'],
     },
     dateOfBirth: { type: Date },
-    contactNumber: {
+    phoneNumber: {
       type: String,
       required: [true, 'Phone Number is required'],
       unique: true,

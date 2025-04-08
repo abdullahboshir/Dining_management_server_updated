@@ -15,9 +15,12 @@ const superUser = {
   phoneNumber: '01500000000',
   email: 'superAdmin@gmail.com',
   password: config.super_admin_pass,
+  fullName: 'Super Admin',
   needsPasswordChange: true,
   role: USER_ROLE.superAdmin,
   status: 'active',
+  profileImg:
+    'https://img.freepik.com/premium-vector/professional-male-muslim-cartoon-character-with-colour-gradient-background_1138840-1957.jpg?semt=ais_hybrid',
   isDeleted: false,
 }
 
@@ -88,7 +91,7 @@ export const seedMeal = async () => {
   const { currentYear, currentMonth } = currentDateBD()
 
   await Meal.updateMany(
-    { [`mealInfo.${currentYear}.${currentMonth}`]: { $exists: false } }, // Condition: Only update if the current month does not exist
-    { $set: { [`mealInfo.${currentYear}.${currentMonth}`]: mealInfoObj } }, // Set the missing month
+    { [`mealInfo.${currentYear}.${currentMonth}`]: { $exists: false } },
+    { $set: { [`mealInfo.${currentYear}.${currentMonth}`]: mealInfoObj } },
   )
 }
