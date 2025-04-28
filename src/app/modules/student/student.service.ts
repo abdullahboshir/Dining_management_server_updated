@@ -3,10 +3,18 @@ import { TStudent } from './student.interface'
 import Student from './student.model'
 import User from '../User/user.model'
 import { updateMutableData } from './student.utils'
+import { studentSearchableFields } from './student.const'
+import QueryBuilder from '../../builder/QueryBuilder'
 
-export const getAllStudentService = async () => {
-  const getStudents = await Student.find().populate('user')
-  return getStudents
+export const getAllStudentService = async (query: Record<string, unknown>) => {
+  const mealQuery = new QueryBuilder(
+    Student.find().populate('user'),
+    query,
+  ).search(studentSearchableFields)
+
+  const result = await mealQuery.modelQuery
+
+  return result
 }
 
 export const getAStudentService = async (id: string) => {

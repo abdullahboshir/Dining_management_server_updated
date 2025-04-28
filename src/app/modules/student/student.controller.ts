@@ -12,7 +12,7 @@ import status from 'http-status'
 
 export const getStudentController = async (req: Request, res: Response) => {
   try {
-    const getStudent = await getAllStudentService()
+    const getStudent = await getAllStudentService(req?.query)
     res.status(200).json({
       success: true,
       message: 'Student has been retrieved successfully',

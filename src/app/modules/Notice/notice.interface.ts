@@ -1,31 +1,75 @@
-import { Types } from 'mongoose'
+import { ObjectId } from 'mongoose'
+
+export enum FilterByEnum {
+  Hall = 'Hall',
+  Dining = 'Dining',
+  Tag = 'Tag',
+  CustomQuery = 'CustomQuery',
+}
 
 export interface TNotice {
-  createdBy: Types.ObjectId
-  hall?: Types.ObjectId
-  dining?: Types.ObjectId
+  createdBy: ObjectId
+  hall: ObjectId
+  dining: ObjectId
   title: string
   description: string
-  schedule: Date
-  type: 'General' | 'Urgent' | 'Event' | 'Update'
-  audience: 'Student' | 'Manager' | 'Admin' | 'Moderator' | 'All'
-  status: 'Active' | 'Inactive' | 'Archived' | 'Pending'
+  noticeType:
+    | 'General'
+    | 'Urgent'
+    | 'Event'
+    | 'Update'
+    | 'Info'
+    | 'Warning'
+    | 'Survey'
+    | 'Maintenance'
+    | 'System'
+    | 'Reminder'
+    | 'Policy'
+  audience: {
+    isAll: boolean
+    role?: 'admin' | 'manager' | 'user' | 'moderator'
+    specificUsers?: ObjectId[]
+    filtered?: {
+      filterBy: FilterByEnum
+      filter: Record<string, any>
+    }
+  }
+  status: 'Active' | 'Inactive' | 'Archived'
   priority: 'Low' | 'Medium' | 'High'
-  actions: {
+  publishedStatus: 'Pending' | 'Published'
+  scheduled: {
+    scheduleAt?: Date
+    expiryDate?: Date
+    type: {
+      isInstant: boolean
+      perSession?: ObjectId[]
+      yearly?: { date: string; time: string }
+      monthly?: { date: string; time: string }
+      weekly?: { days: string[]; time: string }
+      daily?: { time: string }
+      hourly?: { minute: number }
+      recurring?: {
+        interval: number
+        unit: 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | 'years'
+      }
+      limited?: { count: number }
+      event?: string
+    }
+  }
+  actions?: {
     label: string
     url: string
     type: 'external' | 'internal'
   }
   eventTrigger?: {
     type: 'Scheduled' | 'Manual' | 'SystemEvent' | 'UserAction'
-    triggeredBy?: 'Login' | 'Signup' | 'PasswordReset' | 'ProfileUpdate'
+    triggeredBy: 'Login' | 'Signup' | 'PasswordReset' | 'ProfileUpdate'
     condition?: string
     triggeredAt?: Date
   }
-
   log?: {
+    updatedBy: ObjectId
     updatedAt: Date
-    updatedBy: Types.ObjectId
     action:
       | 'Created'
       | 'Updated'
@@ -35,29 +79,14 @@ export interface TNotice {
       | 'Viewed'
     notes?: string
   }[]
-  sentTo?:
-    | 'All'
-    | 'SpecificUsers'
-    | 'FilteredGroup'
-    | 'ByRole'
-    | 'ByLocation'
-    | 'ByHall'
-    | 'ByDining'
-    | 'ByTag'
-    | 'CustomQuery'
-
-  isPublished: boolean
-  isPinned?: boolean
+  isPinned: boolean
   isDeleted: boolean
   dismissible: boolean
   tags: string[]
-  targetUserIds?: Types.ObjectId[]
-  readBy?: Types.ObjectId[]
-  deliveryChannels?: ('Email' | 'SMS' | 'InApp')[]
-  expiryDate?: Date
-  attachments?: string[]
-  updatedBy?: Types.ObjectId
+  readBy: ObjectId[]
+  deliveryChannels: ('Email' | 'SMS' | 'InApp')[]
+  attachments: string[]
+  lastUpdatedBy?: ObjectId
   viewCount: number
-  relatedNotices: Types.ObjectId[]
-  location?: string
+  relatedNotices: ObjectId[]
 }

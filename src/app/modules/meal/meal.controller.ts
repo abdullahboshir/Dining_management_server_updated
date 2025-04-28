@@ -10,9 +10,20 @@ import {
   updateMealStatusService,
 } from './meal.service'
 import { Types } from 'mongoose'
+import pick from '../../utils/pick'
 
 export const getMeals: RequestHandler = catchAsync(async (req, res) => {
-  const result = await getMealsService()
+  // const filters = pick(req.query, [
+  //   'searchTerm',
+  //   'maintenanceFee',
+  //   'currentDeposit',
+  //   'dueMaintenanceFee',
+  //   'totalMeals',
+  //   'mealStatus',
+  // ])
+  // const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder'])
+  // console.log('/////////////', filters)
+  const result = await getMealsService(req?.query)
   sendResponse(res, {
     success: true,
     statusCode: status.OK,

@@ -1,58 +1,178 @@
-import { model, Schema } from 'mongoose'
-import { TNotice } from './notice.interface'
+import { Schema, model, Types } from 'mongoose'
+import { FilterByEnum, TNotice } from './notice.interface'
 
 const noticeSchema = new Schema<TNotice>(
   {
     createdBy: {
       type: Schema.Types.ObjectId,
-      required: [true, 'ID is required'],
       ref: 'User',
+      required: true,
     },
     hall: {
       type: Schema.Types.ObjectId,
       ref: 'Hall',
-      required: [true, 'Hall ID is required'],
+      required: true,
     },
     dining: {
       type: Schema.Types.ObjectId,
       ref: 'Dining',
-      required: [true, 'Dining ID is required'],
+      required: true,
     },
     title: {
       type: String,
-      required: [true, 'Notice heading is required'],
+      required: true,
       trim: true,
-      maxlength: [100, 'Notice heading cannot exceed 100 characters'],
+      maxlength: 100,
     },
     description: {
       type: String,
-      required: [true, 'Notice description is required'],
+      required: true,
       trim: true,
     },
-
-    schedule: {
-      type: Date,
-      required: [true, 'Notice schedule is required'],
-    },
-    type: {
+    noticeType: {
       type: String,
-      enum: ['General', 'Urgent', 'Event', 'Update'],
-      required: [true, 'Notice type is required'],
+      enum: [
+        'General',
+        'Urgent',
+        'Event',
+        'Update',
+        'Info',
+        'Warning',
+        'Survey',
+        'Maintenance',
+        'System',
+        'Reminder',
+        'Policy',
+      ],
       default: 'General',
     },
     audience: {
-      type: String,
-      enum: ['Student', 'Manager', 'Admin', 'Moderator', 'All'],
-      required: [true, 'At least one audience type is required'],
-      default: 'All',
+      isAll: { type: Boolean, default: false }, // Changed to boolean
+      role: {
+        type: String,
+        enum: ['admin', 'manager', 'user', 'moderator'],
+      },
+      specificUsers: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: 'User',
+        },
+      ],
+      filtered: {
+        filterBy: {
+          type: String,
+          enum: Object.values(FilterByEnum),
+        },
+        filter: {
+          type: Schema.Types.Mixed,
+          default: {},
+        },
+      },
     },
     status: {
       type: String,
-      enum: ['Active', 'Inactive', 'Archived', 'Pending'],
-      required: [true, 'Status is required'],
+      enum: ['Active', 'Inactive', 'Archived'],
       default: 'Inactive',
     },
-    isPublished: {
+    priority: {
+      type: String,
+      enum: ['Low', 'Medium', 'High'],
+      default: 'Medium',
+    },
+    publishedStatus: {
+      type: String,
+      enum: ['Pending', 'Published'],
+      default: 'Pending',
+    },
+    scheduled: {
+      scheduleAt: { type: Date },
+      expiryDate: { type: Date },
+      type: {
+        isInstant: { type: Boolean, default: false },
+        perSession: [{ type: Types.ObjectId, ref: 'Session' }],
+        yearly: {
+          date: { type: String },
+          time: { type: String },
+        },
+        monthly: {
+          date: { type: String },
+          time: { type: String },
+        },
+        weekly: {
+          days: [
+            {
+              type: String,
+              enum: [
+                'Sunday',
+                'Monday',
+                'Tuesday',
+                'Wednesday',
+                'Thursday',
+                'Friday',
+                'Saturday',
+              ],
+            },
+          ],
+          time: { type: String },
+        },
+        daily: {
+          time: { type: String },
+        },
+        hourly: {
+          minute: { type: Number },
+        },
+        recurring: {
+          interval: { type: Number },
+          unit: {
+            type: String,
+            enum: ['minutes', 'hours', 'days', 'weeks', 'months', 'years'],
+          },
+        },
+        limited: {
+          count: { type: Number },
+        },
+        event: { type: String },
+      },
+    },
+    actions: {
+      label: { type: String, required: true },
+      url: { type: String, required: true },
+      type: { type: String, enum: ['external', 'internal'], required: true },
+    },
+    eventTrigger: {
+      type: {
+        type: String,
+        enum: ['Scheduled', 'Manual', 'SystemEvent', 'UserAction'],
+      },
+      triggeredBy: {
+        type: String,
+        enum: ['Login', 'Signup', 'PasswordReset', 'ProfileUpdate'],
+      },
+      condition: String,
+      triggeredAt: Date,
+    },
+    log: [
+      {
+        updatedBy: {
+          type: Schema.Types.ObjectId,
+          ref: 'User',
+        },
+        updatedAt: Date,
+        action: {
+          type: String,
+          enum: [
+            'Created',
+            'Updated',
+            'Published',
+            'Archived',
+            'Deleted',
+            'Viewed',
+          ],
+        },
+        notes: String,
+      },
+    ],
+    isPinned: {
       type: Boolean,
       default: false,
     },
@@ -60,27 +180,33 @@ const noticeSchema = new Schema<TNotice>(
       type: Boolean,
       default: false,
     },
-    priority: {
-      type: String,
-      enum: ['Low', 'Medium', 'High'],
-      default: 'Medium',
+    dismissible: {
+      type: Boolean,
+      default: true,
     },
     tags: {
       type: [String],
       default: [],
     },
-    expiryDate: {
-      type: Date,
-      required: false,
+    readBy: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        default: [],
+      },
+    ],
+    deliveryChannels: {
+      type: [String],
+      enum: ['Email', 'SMS', 'InApp'],
+      default: ['InApp'],
     },
     attachments: {
       type: [String],
       default: [],
     },
-    updatedBy: {
+    lastUpdatedBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: false,
     },
     viewCount: {
       type: Number,
@@ -93,28 +219,21 @@ const noticeSchema = new Schema<TNotice>(
         default: [],
       },
     ],
-    location: {
-      type: String,
-      required: false,
-      trim: true,
-    },
   },
   {
     timestamps: true,
-    toJSON: {
-      virtuals: true,
-    },
+    toJSON: { virtuals: true },
   },
 )
 
-// Filter out deleted notices
+// Soft-delete filtering
 noticeSchema.pre('find', function (next) {
-  this.find({ isDeleted: { $ne: true } })
+  this.where({ isDeleted: { $ne: true } })
   next()
 })
 
 noticeSchema.pre('findOne', function (next) {
-  this.find({ isDeleted: { $ne: true } })
+  this.where({ isDeleted: { $ne: true } })
   next()
 })
 

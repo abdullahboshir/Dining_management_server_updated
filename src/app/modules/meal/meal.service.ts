@@ -6,7 +6,7 @@ import {
 } from '../../utils/currentDateBD'
 import Student from '../Student/student.model'
 import Meal from './meal.model'
-import { mealInfoObj } from './meal.const'
+import { mealInfoObj, mealSearchableFields } from './meal.const'
 import { Dining } from '../Dining/dining.model'
 import { Hall } from '../Hall/hall.model'
 import AppError from '../../errors/AppError'
@@ -15,16 +15,25 @@ import {
   calculationPreviousDeposit,
   countDueMaintenanceFee,
 } from './meal.utils'
-import { USER_STATUS, USER_STATUS_ARRAY } from '../User/user.constant'
+import { USER_STATUS } from '../User/user.constant'
+import QueryBuilder from '../../builder/QueryBuilder'
 
 const { currentYear, currentMonth, currentDay } = currentDateBD()
-export const getMealsService = async () => {
-  const meals = await Meal.find().populate({
-    path: 'student',
-    populate: [{ path: 'hall' }, { path: 'dining' }, { path: 'user' }],
-  })
 
-  if (!meals) {
+export const getMealsService = async (query: Record<string, unknown>) => {
+  const mealQuery = new QueryBuilder(
+    Meal.find().populate({
+      path: 'student',
+      populate: [{ path: 'hall' }, { path: 'dining' }, { path: 'user' }],
+    }),
+    query,
+  ).search(mealSearchableFields)
+
+  const result = await mealQuery.modelQuery
+
+  // console.log('rewultttttttt', result)
+
+  if (!result) {
     return { status: false, message: 'the Meal is not exists! ' }
   }
 
@@ -34,7 +43,7 @@ export const getMealsService = async () => {
       page: 2,
       limit: 5,
     },
-    data: meals,
+    data: result,
   }
 }
 

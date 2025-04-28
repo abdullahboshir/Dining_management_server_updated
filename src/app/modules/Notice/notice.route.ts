@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express'
 import {
   createNoticeController,
   getAllNoticesController,
+  updatePinnedController,
 } from './notice.controller'
 import auth from '../../middlewares/auth'
 import { USER_ROLE } from '../User/user.constant'
@@ -23,5 +24,6 @@ router.post(
 )
 
 router.get('/getAllNotices', getAllNoticesController)
+router.patch('/:noticeId', updatePinnedController)
 
 export const NoticeRoutes = router

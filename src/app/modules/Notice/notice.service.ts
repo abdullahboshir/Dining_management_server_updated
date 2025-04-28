@@ -1,7 +1,3 @@
-import { Admin } from '../Admin/admin.model'
-import { Manager } from '../Manager/manager.model'
-import Student from '../Student/student.model'
-import User from '../User/user.model'
 import { TNotice } from './notice.interface'
 import { Notice } from './notice.model'
 
@@ -11,35 +7,19 @@ export const createNoticeService = async (payload: TNotice) => {
 }
 
 export const getAllNoticesService = async () => {
-  const notices = await Notice.find().sort({ createdAt: -1 })
+  const notices = await Notice.find()
+    .sort({ createdAt: -1 })
+    .populate('createdBy')
 
-  const models = [Admin, Student, Manager] as any
+  return notices
+}
 
-  const fullNotices = await Promise.all(
-    notices.map(async (notice) => {
-      let fullUser = null
-
-      for (const model of models) {
-        const result = await model
-          .findOne({ id: notice.createdBy })
-          .populate('user')
-        if (result) {
-          fullUser = result
-          break
-        }
-      }
-
-      if (!fullUser) {
-        fullUser = await User.findOne({ id: notice.createdBy })
-      }
-
-      return {
-        ...notice.toObject(),
-        createdByInfo: fullUser,
-      }
-    }),
-  )
-
-  console.log('✅ Full Notices with Populated createdBy:', fullNotices)
-  return fullNotices
+export const updatePinnedService = async (
+  _id: Object,
+  payload: { isPinned: string },
+) => {
+  const result = await Notice.findByIdAndUpdate(_id, {
+    $set: { isPinned: payload.isPinned },
+  })
+  return result
 }
