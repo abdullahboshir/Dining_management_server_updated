@@ -20,6 +20,8 @@ import AppError from '../../errors/AppError'
 import { sendImageToCloudinary } from '../../utils/IMGUploader'
 import { Manager } from '../Manager/manager.model'
 import { Admin } from '../Admin/admin.model'
+import status from 'http-status'
+import { findRoleBaseUser } from '../Auth/auth.utils'
 
 export const createStudentService = async (
   password: string,
@@ -28,34 +30,33 @@ export const createStudentService = async (
 ) => {
   const userData: Partial<TUser> = {}
   const mealData: Partial<TMeal> = {}
-
   if (
     !Types.ObjectId.isValid(studentData.hall) ||
     !Types.ObjectId.isValid(studentData.dining)
   ) {
     throw new Error('invalid Dining or Hall!')
   }
-
+  
   const isHallExist = await Hall.findById({ _id: studentData.hall })
-
+  
   if (!isHallExist) {
     throw new Error('The Student has not under in the Hall!')
   }
-
+  
   const isDiningExist = await Dining.findById({ _id: studentData.dining })
-
+  
   if (!isDiningExist) {
     throw new Error('The Student has not under in Dining!')
   }
-
+  
   // console.log
-
+  
   const session = await startSession()
   try {
     //   start session
     session.startTransaction()
     const id = await generateStudentId(studentData)
-
+    
     if (file) {
       const imgName = `${studentData.name.firstName}${id}`
       const imgPath = file?.path
@@ -67,7 +68,8 @@ export const createStudentService = async (
       userData.profileImg = secure_url
     } else {
     }
-
+    
+    console.log('xxxxxxxxxxxxx', studentData)
     // create User
     userData.id = id
     userData.password = password || config.default_pass
@@ -76,18 +78,20 @@ export const createStudentService = async (
     userData.phoneNumber = studentData?.phoneNumber
     const { firstName, middleName, lastName } = studentData?.name
     userData.fullName = firstName + ' ' + middleName + ' ' + lastName
-
+    
     const newUser = await User.create([userData], { session })
-
+    
     if (!newUser.length) {
-      throw new Error('Failed to create user!')
+      throw new Error('Failed to create user!') 
     }
-
+    
     // create Student
     studentData.id = newUser[0].id
     studentData.user = newUser[0]._id
-
+    console.log("vvvvvvvvvvvvvvv", typeof newUser[0]._id)
+    console.log('dddddddddddeeeeeeeeeeeeeee', studentData)
     const newStudent = await Student.create([studentData], { session })
+    console.log('1111111111111111111', newStudent)
 
     if (!newStudent || !newStudent.length) {
       throw new Error('Failed to create Student!')
@@ -100,6 +104,7 @@ export const createStudentService = async (
       throw new Error('Invalid student data')
     }
 
+    console.log('ddddddddddd', studentData)
     // create Meal
 
     const { currentYear, currentMonth } = currentDateBD()
@@ -322,24 +327,19 @@ export const updateUserStatusService = async (
   return result
 }
 
-export const getMeService = async (id: string, role: string) => {
-  let result = null
-
-  if (role === USER_ROLE.student) {
-    result = await Student.findOne({ id }).populate('user')
+export const getMeService = async (_id: Types.ObjectId, role: string) => {
+  
+  const isUserExists = await User.findOne({_id, role})
+  
+  if (!isUserExists) {
+    throw new AppError(status.NOT_FOUND, 'User is not found')
   }
 
-  // if (role === USER_ROLE.moderator) {
-  //   result = await Student.findOne({ id }).populate('user')
-  // }
-  if (role === USER_ROLE.manager) {
-    result = await Manager.findOne({ id }).populate('user')
+  const  result = await findRoleBaseUser(isUserExists?.id, isUserExists?.email, isUserExists?.role);
+
+  if (!result) {
+    throw new AppError(status.NOT_FOUND, 'The user not found!')
   }
-  if (role === USER_ROLE.admin) {
-    result = await Admin.findOne({ id }).populate('user')
-  }
-  if (role === USER_ROLE.superAdmin) {
-    result = await User.findOne({ id })
-  }
+ 
   return result
 }

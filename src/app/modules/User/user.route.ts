@@ -40,7 +40,6 @@ router.post(
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   upload.single('file'),
   (req: Request, res: Response, next: NextFunction) => {
-    console.log('jjjjjjjjjjjjjjjjj', JSON.parse(req.body.data))
     req.body = JSON.parse(req.body.data)
     next()
   },

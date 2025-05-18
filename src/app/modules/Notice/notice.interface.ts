@@ -79,7 +79,7 @@ export interface TNotice {
       | 'Viewed'
     notes?: string
   }[]
-  isPinned: boolean
+  isPinned: string[]
   isDeleted: boolean
   dismissible: boolean
   tags: string[]

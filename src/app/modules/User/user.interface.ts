@@ -1,7 +1,8 @@
-import { Model } from 'mongoose'
+import { Model, Types } from 'mongoose'
 import { USER_ROLE } from './user.constant'
 
 export type TUser = {
+  _id?: Types.ObjectId 
   id: string
   phoneNumber: string
   email: string
@@ -17,10 +18,11 @@ export type TUser = {
   updatedAt: Date
 }
 
-export type TUserRole = keyof typeof USER_ROLE
+export type TUserRole = keyof typeof USER_ROLE 
 
 export interface UserModel extends Model<TUser> {
   isUserExistsByCustomId(id: string): Promise<TUser>
+  isUserExistsById(id: Types.ObjectId): Promise<TUser>
   isUserExistsByEmail(email: string): Promise<TUser>
 
   isPasswordMatched(plainPass: string, hashedPass: string): Promise<Boolean>

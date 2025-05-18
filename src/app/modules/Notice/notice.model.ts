@@ -173,8 +173,8 @@ const noticeSchema = new Schema<TNotice>(
       },
     ],
     isPinned: {
-      type: Boolean,
-      default: false,
+      type: [String],
+      default: [],
     },
     isDeleted: {
       type: Boolean,

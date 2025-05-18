@@ -5,12 +5,18 @@ import { TLoginUser } from './auth.interface'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import config from '../../config'
 import bcrypt from 'bcrypt'
-import { createToken, verifyToken } from './auth.utils'
+import { createToken, findRoleBaseUser, verifyToken } from './auth.utils'
 import { sendEmail } from '../../utils/sendEmail'
+import { Types } from 'mongoose'
+import { USER_ROLE } from '../User/user.constant'
+import { Admin } from '../Admin/admin.model'
+import Student from '../Student/student.model'
+import { Manager } from '../Manager/manager.model'
 
 export const userLoginService = async (payload: TLoginUser) => {
   //   const isUserExists = await User.findOne({ id: payload.id })
   const isUserExists = await User.isUserExistsByEmail(payload?.email)
+  
 
   if (!isUserExists) {
     throw new AppError(status.NOT_FOUND, 'User is not found')
@@ -38,7 +44,9 @@ export const userLoginService = async (payload: TLoginUser) => {
     throw new AppError(status.FORBIDDEN, 'password deos not matched')
   }
 
-  const jwtPayload = { userId: isUserExists.id, role: isUserExists.role }
+
+  const jwtPayload: any = { userId: isUserExists?._id, role: isUserExists.role }
+
 
   const accessToken = createToken(
     jwtPayload,
@@ -118,7 +126,8 @@ export const refreshTokenService = async (token: string) => {
 
   const { userId, role, iat } = decoded
 
-  const isUserExists = await User.isUserExistsByCustomId(userId)
+  const isUserExists = await User.isUserExistsById(userId)
+ 
 
   if (!isUserExists) {
     throw new AppError(status.NOT_FOUND, 'User is not found')
@@ -148,7 +157,7 @@ export const refreshTokenService = async (token: string) => {
     throw new AppError(status.UNAUTHORIZED, 'You are not authorized')
   }
 
-  const jwtPayload = { userId: isUserExists.id, role: isUserExists.role }
+  const jwtPayload: any = { userId: isUserExists._id, role: isUserExists.role }
 
   const accessToken = createToken(
     jwtPayload,
@@ -161,8 +170,8 @@ export const refreshTokenService = async (token: string) => {
   }
 }
 
-export const forgetPasswordService = async (userId: string) => {
-  const isUserExists = await User.isUserExistsByCustomId(userId)
+export const forgetPasswordService = async (userId: Types.ObjectId) => {
+  const isUserExists = await User.isUserExistsById(userId)
 
   if (!isUserExists) {
     throw new AppError(status.NOT_FOUND, 'User is not found')
@@ -182,7 +191,7 @@ export const forgetPasswordService = async (userId: string) => {
     throw new AppError(status.FORBIDDEN, 'this User is inactive')
   }
 
-  const jwtPayload = { userId: isUserExists.id, role: isUserExists.role }
+  const jwtPayload: any = { userId: isUserExists._id, role: isUserExists.role }
 
   const accessToken = createToken(
     jwtPayload,

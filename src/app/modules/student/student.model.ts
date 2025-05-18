@@ -165,7 +165,6 @@ const studentSchema = new Schema<TStudent>(
     admissionDetails: {
       admissionFee: {
         type: Number,
-        required: [true, 'Please provide an Admission Fee'],
         trim: true,
       },
       isAdmissionFeePaid: {
@@ -198,7 +197,7 @@ const studentSchema = new Schema<TStudent>(
     },
     meals: {
       type: Schema.Types.ObjectId,
-      ref: 'Meals',
+      ref: 'Meal',
       required: false,
     },
     bloodGroup: {
@@ -206,8 +205,13 @@ const studentSchema = new Schema<TStudent>(
       enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
       required: false,
     },
+  }, 
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+    },
   },
-  { timestamps: true },
 )
 
 const capitalize = (str: string = '') =>
@@ -222,6 +226,17 @@ studentSchema.pre('save', function (next) {
   } catch (error: any) {
     next(error)
   }
+})
+
+// generating full name
+studentSchema.virtual('fullName').get(function () {
+  return (
+    this?.name?.firstName +
+    ' ' +
+    this?.name?.middleName +
+    ' ' +
+    this?.name?.lastName
+  )
 })
 
 // Create the Mongoose model

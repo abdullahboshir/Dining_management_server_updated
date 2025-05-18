@@ -1,4 +1,10 @@
+import { currentDateBD, generateDailyMealDate } from "../../utils/currentDateBD"
+
+const {currentMonth, currentYear} = currentDateBD();
+const allDays = generateDailyMealDate(currentMonth, +currentYear)
+
 export const mealInfoObj = {
+        dailyMealHistory: allDays,
   maintenanceFee: 0,
   totalDeposit: 0,
   currentDeposit: 0,

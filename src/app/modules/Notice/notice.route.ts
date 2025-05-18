@@ -23,7 +23,8 @@ router.post(
   createNoticeController,
 )
 
-router.get('/getAllNotices', getAllNoticesController)
-router.patch('/:noticeId', updatePinnedController)
+router.get('/getAllNotices', auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.manager, USER_ROLE.moderator, USER_ROLE.student), getAllNoticesController)
+
+router.patch('/:noticeId', auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.manager, USER_ROLE.moderator, USER_ROLE.student), updatePinnedController)
 
 export const NoticeRoutes = router

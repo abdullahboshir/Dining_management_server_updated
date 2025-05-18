@@ -26,7 +26,7 @@ export type TUserName = {
 }
 
 export type TAdmissionDetails = {
-  admissionFee: string
+  admissionFee?: number
   isAdmissionFeePaid: boolean
 }
 

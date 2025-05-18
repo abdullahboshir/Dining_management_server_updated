@@ -5,7 +5,7 @@ import status from 'http-status'
 import {
   addMealDepositService,
   getMealsService,
-  getSingleMealsService,
+  getSingleMealService,
   updateMaintenanceFeeService,
   updateMealStatusService,
 } from './meal.service'
@@ -35,7 +35,7 @@ export const getMeals: RequestHandler = catchAsync(async (req, res) => {
 
 export const getSingleMeal: RequestHandler = catchAsync(async (req, res) => {
   const { mealId } = req.params
-  const result = await getSingleMealsService(mealId)
+  const result = await getSingleMealService(mealId)
   sendResponse(res, {
     success: true,
     statusCode: status.OK,

@@ -19,8 +19,9 @@ const auth = (...requiredRole: TUserRole[]) => {
     const decoded = verifyToken(token, config.jwt_access_secret as string)
 
     const { userId, role, iat } = decoded
-
-    const isUserExists = await User.isUserExistsByCustomId(userId)
+    
+    const isUserExists = await User.isUserExistsById(userId)
+ 
 
     if (!isUserExists) {
       throw new AppError(status.NOT_FOUND, 'User is not found')

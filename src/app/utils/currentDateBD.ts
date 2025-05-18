@@ -102,3 +102,18 @@ export const getLastDayOfMonth = (year: string, monthName: string): number => {
   const lastDay = new Date(Number(year), monthIndex + 1, 0).getDate()
   return lastDay
 }
+
+
+
+
+export const generateDailyMealDate = (monthName: string, year: number): Record<string, number> => {
+  const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth(); // 0-based index
+  const totalDays = new Date(year, monthIndex + 1, 0).getDate();
+
+  const dailyMealHistory: Record<string, number> = {};
+  for (let day = 1; day <= totalDays; day++) {
+    dailyMealHistory[day.toString()] = 0; // default: 0 = no meal taken
+  }
+
+  return dailyMealHistory;
+}

@@ -20,7 +20,8 @@ export const createNoticeController = catchAsync(async (req, res) => {
 })
 
 export const getAllNoticesController = catchAsync(async (req, res) => {
-  const data = await getAllNoticesService()
+  
+  const data = await getAllNoticesService(req.user, req.query)
 
   sendResponse(res, {
     success: true,
@@ -32,8 +33,9 @@ export const getAllNoticesController = catchAsync(async (req, res) => {
 
 export const updatePinnedController = catchAsync(async (req, res) => {
   const { noticeId } = req.params
+  const user = req.user;
 
-  const data = await updatePinnedService(noticeId, req.body)
+  const data = await updatePinnedService(noticeId, user)
 
   sendResponse(res, {
     success: true,
