@@ -14,14 +14,15 @@ export const sendEmail = async (to: string, html: string) => {
 
   const info = await transporter.sendMail({
     from: 'allused20177@gmail.com', // sender address
-    to, // list of receivers
+    to, // list of receivers 
     subject: 'Hello ✔, Mawlana Mubarak Hossen!', // Subject line
     text: 'Reset your password within 10 minutes!', // plain text body
     html: `<h1>Reset your password within 10 minutes!!</h1> ${html}`,
   })
 
-  console.log('Message sent: %s', info.messageId)
+  console.log('Message sent successfully:', info)
   // Message sent: <d786aa62-4e0a-070a-47ed-0b0666549519@ethereal.email>
+  return info;
 }
 
 // async..await is not allowed in global scope, must use a wrapper

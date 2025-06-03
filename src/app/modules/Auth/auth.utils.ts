@@ -23,16 +23,16 @@ export const verifyToken = (token: string, secret: string) => {
 
 export const  findRoleBaseUser = async (id: string, email: string, role: string) => {
   let isRoleBaseUserExists;
-  if (role === USER_ROLE.student) { 
+  if (id && role === USER_ROLE.student) { 
     isRoleBaseUserExists = await Student.findOne({ id, email }).populate('user')
   }
-  else if (role === USER_ROLE.moderator) {
+  else if (id && role === USER_ROLE.moderator) {
     isRoleBaseUserExists = await Student.findOne({ id, email  }).populate('user')
   }
-  else if (role === USER_ROLE.manager) {
+  else if (id && role === USER_ROLE.manager) {
     isRoleBaseUserExists = await Manager.findOne({ id, email  }).populate('user')    
   }
-  else if (role === USER_ROLE.admin) {
+  else if (id && role === USER_ROLE.admin) {
     isRoleBaseUserExists = await Admin.findOne({ id, email  }).populate('user')
   }
   else if (role === USER_ROLE.superAdmin) {

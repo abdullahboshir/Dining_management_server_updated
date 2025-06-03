@@ -53,7 +53,6 @@ export const updateManagerService = async (
   id: string,
   payload: Partial<TManager>,
 ) => {
-  console.log('managerrrrrrrrrrrrrrr', id, payload)
 
   const { name, ...remainingManagerData } = payload
 

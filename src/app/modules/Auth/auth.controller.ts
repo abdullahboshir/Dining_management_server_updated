@@ -73,7 +73,7 @@ export const refreshTokenController: RequestHandler = catchAsync(
 
 export const forgetPasswordController: RequestHandler = catchAsync(
   async (req, res) => {
-    const result = await forgetPasswordService(req.body.id)
+    const result = await forgetPasswordService(req.body)
     sendResponse(res, {
       success: true,
       statusCode: status.OK,

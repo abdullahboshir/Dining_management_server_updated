@@ -69,7 +69,6 @@ export const createStudentService = async (
     } else {
     }
     
-    console.log('xxxxxxxxxxxxx', studentData)
     // create User
     userData.id = id
     userData.password = password || config.default_pass
@@ -80,6 +79,7 @@ export const createStudentService = async (
     userData.fullName = firstName + ' ' + middleName + ' ' + lastName
     
     const newUser = await User.create([userData], { session })
+
     
     if (!newUser.length) {
       throw new Error('Failed to create user!') 
@@ -88,10 +88,8 @@ export const createStudentService = async (
     // create Student
     studentData.id = newUser[0].id
     studentData.user = newUser[0]._id
-    console.log("vvvvvvvvvvvvvvv", typeof newUser[0]._id)
-    console.log('dddddddddddeeeeeeeeeeeeeee', studentData)
     const newStudent = await Student.create([studentData], { session })
-    console.log('1111111111111111111', newStudent)
+
 
     if (!newStudent || !newStudent.length) {
       throw new Error('Failed to create Student!')

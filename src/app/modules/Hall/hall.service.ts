@@ -1,6 +1,7 @@
 // import { startSession, Types } from 'mongoose'
 // import { Dining } from '../Dining/dining.model'
 // import { THall } from './hall.interface'
+import { Types } from 'mongoose'
 import { Hall } from './hall.model'
 
 // no need to create dining manually because dining will be created automatically when server will be run.
@@ -72,4 +73,13 @@ import { Hall } from './hall.model'
 export const getAllHallsService = async () => {
   const getHalls = await Hall.findOne({})
   return getHalls
+}
+
+
+
+export const updateHallService = async (id: Types.ObjectId, payload: any) => {
+  const {hallName, hallSummary, ...data} = payload;
+  console.log('updateDiningService called with id:', id, data)
+const updatedHall = await Hall.findOneAndUpdate(id, {$set: data}, {new: true}) 
+return updatedHall;
 }

@@ -95,7 +95,7 @@ const managerSchema = new Schema<TManager, ManagerModel>(
       type: String,
       required: [true, 'Emergency contact number is required'],
     },
-    bloogGroup: {
+    bloodGroup: {
       type: String,
       enum: {
         values: BloodGroup,

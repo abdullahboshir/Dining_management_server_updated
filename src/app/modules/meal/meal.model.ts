@@ -26,6 +26,16 @@ const mealSchema = new Schema<TMeal, TMealExists>(
       type: Date,
       default: Date.now,
     },
+    mealSchedule: {
+      on: {
+      type: Date,
+      default: Date.now,
+      },
+      off: {
+      type: Date,
+      default: Date.now, 
+      }
+    },
     mealInfo: {
       type: Schema.Types.Mixed,
       default: {},

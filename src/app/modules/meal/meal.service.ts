@@ -32,8 +32,6 @@ export const getMealsService = async (query: Record<string, unknown>) => {
 
   const result = await mealQuery.modelQuery
 
-
-
   // const result = await Meal.find().populate({path: 'student', populate: [{path: 'user'}, {path: 'dining'}, {path: 'hall'}]})
 
   // console.log('rewultttttttt', result)
@@ -120,8 +118,6 @@ const startMealIncrement = async (mealId: Types.ObjectId) => {
         throw new AppError(status.BAD_REQUEST, 'Meal update Failed')
       }
 
-      console.log('dddddddddddggggggggggg', haveCountDueMaintenanceFee)
-
       const isStudentExists = (await Student.findOne({
         id: isMealExists.id,
         _id: isMealExists.student,
@@ -193,6 +189,7 @@ const startMealIncrement = async (mealId: Types.ObjectId) => {
       const currentDeposit = baseCurrentMealObj.currentDeposit - mealCharge
       const totalCost = baseCurrentMealObj.totalCost + mealCharge
 
+      console.log('current dayyyyyyyyyy', currentDay, mealIncrementAmount)
 
       const result = await Meal.findByIdAndUpdate(
         mealId,
@@ -200,12 +197,14 @@ const startMealIncrement = async (mealId: Types.ObjectId) => {
           $set: {
             [`mealInfo.${currentYear}.${currentMonth}.totalMeals`]:
               increamentTotal,
+            [`mealInfo.${currentYear}.${currentMonth}.dailyMealHistory.${currentDay}`]:
+              1,
             [`mealInfo.${currentYear}.${currentMonth}.currentDeposit`]:
               currentDeposit,
             [`mealInfo.${currentYear}.${currentMonth}.dueMaintenanceFee`]:
               haveCountDueMaintenanceFee,
             [`mealInfo.${currentYear}.${currentMonth}.totalCost`]: totalCost,
-            [`mealInfo.${currentYear}.${currentMonth}.dailyMealHistory.${currentDay}`]: mealIncrementAmount,
+
             mealCountUpdatedDate: newDate,
           },
         },
@@ -363,7 +362,7 @@ export const addMealDepositService = async (
   const dining = await Dining.find()
 
   if (!isMealExists) {
-    throw new AppError(status.NOT_FOUND, 'the Meal is not exists! ');
+    throw new AppError(status.NOT_FOUND, 'the Meal is not exists! ')
   }
 
   const isStudentExists = await Student.findOne({
@@ -386,7 +385,6 @@ export const addMealDepositService = async (
       `The Student is ${isStudentExists.status}`,
     )
   }
-
 
   // const { previousYear, previousMonth } = previousDateBD()
 
@@ -528,20 +526,26 @@ export const updateMaintenanceFeeService = async (
       `The Student is ${isStudentExists.status}`,
     )
   }
-  if (meal?.mealInfo?.[currentYear][currentMonth].currentDeposit < hall?.hallPolicies?.maintenanceCharge){
-    throw new AppError(status.BAD_REQUEST, `Your current Deposit is very low, please Depost before and try again`)
-  };
+  if (
+    meal?.mealInfo?.[currentYear][currentMonth].currentDeposit <
+    hall?.hallPolicies?.maintenanceCharge
+  ) {
+    throw new AppError(
+      status.BAD_REQUEST,
+      `Your current Deposit is very low, please Depost before and try again`,
+    )
+  }
 
-  const currentDeposit = meal?.mealInfo?.[currentYear][currentMonth].currentDeposit - hall?.hallPolicies?.maintenanceCharge
-
- 
+  const currentDeposit =
+    meal?.mealInfo?.[currentYear][currentMonth].currentDeposit -
+    hall?.hallPolicies?.maintenanceCharge
 
   const update = await Meal.findByIdAndUpdate(id, {
     $set: {
       [`mealInfo.${year}.${month}.maintenanceFee`]:
         hall?.hallPolicies?.maintenanceCharge,
       [`mealInfo.${currentYear}.${currentMonth}.currentDeposit`]:
-      currentDeposit
+        currentDeposit,
     },
   })
   return update

@@ -23,7 +23,7 @@ const createStudent: RequestHandler = catchAsync(async (req, res) => {
 })
 
 const createManager: RequestHandler = catchAsync(async (req, res) => {
-  const { password, managerData } = req.body
+  const { password, managerData } = req.body 
   const result = await createManagerService(password, managerData, req.file)
   sendResponse(res, {
     success: true,

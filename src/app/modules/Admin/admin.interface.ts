@@ -31,7 +31,7 @@ export type TAdmin = {
   email: string
   phoneNumber: string
   emergencyContactNo: string
-  bloogGroup?: TBloodGroup
+  bloodGroup?: TBloodGroup
   presentAddress: string
   permanentAddress: string
   profileImg?: string

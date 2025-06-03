@@ -12,5 +12,6 @@ const router = express.Router()
 )*/
 
 router.get('/getAllHalls', HallController.getAllHalls)
+router.patch('/:hallId', HallController.updateHall)
 
 export const HallRoutes = router

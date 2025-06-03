@@ -60,7 +60,7 @@ const userSchema = new Schema<TUser, UserModel>(
       type: Boolean,
       default: true,
     },
-    passwordChangedAt: {
+    passwordChangedAt : {
       type: Date,
     },
     role: {
@@ -115,8 +115,8 @@ userSchema.methods.comparePassword = async function (password: string) {
   return bcrypt.compare(password, this.password)
 }
 
-userSchema.statics.isUserExistsByCustomId = async function (id: string) {
-  const isUserExists = await User.findOne({ id }).select('+password')
+userSchema.statics.isUserExistsByCustomId = async function (id: string, email?: string) {
+  const isUserExists = await User.findOne({ id, email }).select('+password')
   return isUserExists
 }
 
@@ -127,6 +127,11 @@ userSchema.statics.isUserExistsById = async function (_id: string) {
 
 userSchema.statics.isUserExistsByEmail = async function (email: string) {
   const isUserExists = await User.findOne({ email }).select('+password')
+  return isUserExists
+}
+
+userSchema.statics.isUserExistsByPhoneNumber = async function (phoneNumber: string) {
+  const isUserExists = await User.findOne({ phoneNumber }).select('+password')
   return isUserExists
 }
 

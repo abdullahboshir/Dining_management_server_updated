@@ -7,6 +7,10 @@ export type TMeal = {
   mealStatus: 'off' | 'on'
   mealCountUpdatedDate: Date
   lastUpdatedDate: Date
+  mealSchedule?: {
+    on: Date,
+    off: Date
+  }
   mealInfo: {
     [year: string]: {
       [month: string]: {

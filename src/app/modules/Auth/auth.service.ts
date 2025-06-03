@@ -16,7 +16,6 @@ import { Manager } from '../Manager/manager.model'
 export const userLoginService = async (payload: TLoginUser) => {
   //   const isUserExists = await User.findOne({ id: payload.id })
   const isUserExists = await User.isUserExistsByEmail(payload?.email)
-  
 
   if (!isUserExists) {
     throw new AppError(status.NOT_FOUND, 'User is not found')
@@ -44,9 +43,12 @@ export const userLoginService = async (payload: TLoginUser) => {
     throw new AppError(status.FORBIDDEN, 'password deos not matched')
   }
 
-
-  const jwtPayload: any = { userId: isUserExists?._id, role: isUserExists.role }
-
+  const jwtPayload: any = {
+    userId: isUserExists?._id,
+    email: isUserExists?.email,
+    role: isUserExists.role,
+    id: isUserExists?.id,
+  }
 
   const accessToken = createToken(
     jwtPayload,
@@ -71,7 +73,10 @@ export const userChangePasswordService = async (
   user: JwtPayload,
   payload: { newPassword: string; oldPassword: string },
 ) => {
-  const isUserExists = await User.isUserExistsByCustomId(user?.userId)
+  const isUserExists = await User.isUserExistsByCustomId(
+    user?.userId,
+    user?.email,
+  )
 
   if (!isUserExists) {
     throw new AppError(status.NOT_FOUND, 'User is not found')
@@ -127,7 +132,6 @@ export const refreshTokenService = async (token: string) => {
   const { userId, role, iat } = decoded
 
   const isUserExists = await User.isUserExistsById(userId)
- 
 
   if (!isUserExists) {
     throw new AppError(status.NOT_FOUND, 'User is not found')
@@ -157,7 +161,12 @@ export const refreshTokenService = async (token: string) => {
     throw new AppError(status.UNAUTHORIZED, 'You are not authorized')
   }
 
-  const jwtPayload: any = { userId: isUserExists._id, role: isUserExists.role }
+  const jwtPayload: any = {
+    userId: isUserExists?._id,
+    email: isUserExists?.email,
+    role: isUserExists.role,
+    id: isUserExists?.id,
+  }
 
   const accessToken = createToken(
     jwtPayload,
@@ -170,11 +179,20 @@ export const refreshTokenService = async (token: string) => {
   }
 }
 
-export const forgetPasswordService = async (userId: Types.ObjectId) => {
-  const isUserExists = await User.isUserExistsById(userId)
+export const forgetPasswordService = async (payload: any) => {
+ console.log('ddddddddddddddddddddddddddddddddddddddd', payload)
+
+  
+  let isUserExists;
+  if(payload?.email){
+    isUserExists = await User.isUserExistsByEmail(payload?.email)
+  } else if(payload?.phoneNumber){
+    isUserExists = await User.isUserExistsByPhoneNumber(payload?.emailOrPhoneNumber)
+  }
+
 
   if (!isUserExists) {
-    throw new AppError(status.NOT_FOUND, 'User is not found')
+    throw new AppError(status.NOT_FOUND, 'User is not found') 
   }
 
   const isDeleted = isUserExists.isDeleted
@@ -191,29 +209,39 @@ export const forgetPasswordService = async (userId: Types.ObjectId) => {
     throw new AppError(status.FORBIDDEN, 'this User is inactive')
   }
 
-  const jwtPayload: any = { userId: isUserExists._id, role: isUserExists.role }
+    const jwtPayload: any = {
+    userId: isUserExists?._id,
+    email: isUserExists?.email,
+    role: isUserExists.role,
+    id: isUserExists?.id,
+  }
 
   const accessToken = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
-    '10m',
+    '5m',
   )
 
-  const resetUILink = `${config.reset_pass_ui_link}?id${isUserExists.id}&token=${accessToken}`
+
+
+  const resetUILink = `${config.reset_pass_ui_link}/reset-password?id=${isUserExists.id}&token=${accessToken}`
   const emails =
     'samiunnoor71@gmail.com, allused2020@gmail.com, projuktiit.info@gmail.com'
 
   const userEmail = isUserExists.email
 
-  const emailSend = sendEmail(emails, resetUILink)
-  console.log('email sendedddddddddddd', emailSend)
+  const emailSend = await sendEmail(emails, resetUILink)
+  console.log('email sendedddddddddddd', emailSend.messageId)
+  return emailSend.messageId
 }
 
-export const resetPasswordService = async (
-  token: string,
-  payload: { id: string; newPassword: string },
-) => {
-  const isUserExists = await User.isUserExistsByCustomId(payload?.id)
+
+export const resetPasswordService = async (token: string, payload: any) => {
+  const decoded = verifyToken(token, config.jwt_access_secret as string)
+
+  const { userId, role, id, email } = decoded
+
+  const isUserExists = await User.isUserExistsByCustomId(payload.id, email)
 
   if (!isUserExists) {
     throw new AppError(status.NOT_FOUND, 'User is not found')
@@ -232,10 +260,6 @@ export const resetPasswordService = async (
   if (userStatus === 'inactive') {
     throw new AppError(status.FORBIDDEN, 'this User is inactive')
   }
-
-  const decoded = verifyToken(token, config.jwt_access_secret as string)
-
-  const { userId, role, iat } = decoded
 
   if (isUserExists.id !== userId && isUserExists.role !== role) {
     throw new AppError(status.FORBIDDEN, 'You are Forbidden')
@@ -245,13 +269,24 @@ export const resetPasswordService = async (
     payload.newPassword,
     Number(config.bcrypt_salt_rounds),
   )
-
   const updated = await User.findOneAndUpdate(
-    { id: userId, role },
+    { _id: userId, role },
     {
-      password: newHashedPass,
-      needsPasswordChange: false,
-      passwordChangedAt: new Date(),
+      $set: {
+        password: newHashedPass,
+        needsPasswordChange: false,
+        passwordChangedAt: new Date(),
+      },
     },
+    { new: true, runValidators: true, select: '+password' },
   )
+console.log('updated user', updated)
+  if (!updated) {
+    throw new AppError(
+      status.INTERNAL_SERVER_ERROR,
+      'Failed to update password',
+    )
+  }
+
+  return updated
 }

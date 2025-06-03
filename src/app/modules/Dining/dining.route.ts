@@ -19,4 +19,6 @@ const router = express.Router()
 
 router.get('/getAllDinings', DiningController.getAllDinings)
 
+router.patch('/:diningId', DiningController.updateDining) 
+
 export const DiningRoutes = router
