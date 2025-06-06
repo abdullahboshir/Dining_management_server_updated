@@ -14,7 +14,7 @@ import Student from '../Student/student.model'
 import { Manager } from '../Manager/manager.model'
 
 export const userLoginService = async (payload: TLoginUser) => {
-  //   const isUserExists = await User.findOne({ id: payload.id })
+
   const isUserExists = await User.isUserExistsByEmail(payload?.email)
 
   if (!isUserExists) {
@@ -62,65 +62,17 @@ export const userLoginService = async (payload: TLoginUser) => {
     config.jwt_refresh_expired_in as string,
   )
 
+
+
   return {
     accessToken,
     refreshToken,
     needsPasswordChange: isUserExists?.needsPasswordChange,
+    user: isUserExists
   }
 }
 
-export const userChangePasswordService = async (
-  user: JwtPayload,
-  payload: { newPassword: string; oldPassword: string },
-) => {
-  const isUserExists = await User.isUserExistsByCustomId(
-    user?.userId,
-    user?.email,
-  )
 
-  if (!isUserExists) {
-    throw new AppError(status.NOT_FOUND, 'User is not found')
-  }
-
-  const isDeleted = isUserExists.isDeleted
-  if (isDeleted) {
-    throw new AppError(status.FORBIDDEN, 'this User is deleted')
-  }
-
-  const userStatus = isUserExists.status
-  if (userStatus === 'blocked') {
-    throw new AppError(status.FORBIDDEN, 'this User is blocked')
-  }
-
-  if (userStatus === 'inactive') {
-    throw new AppError(status.FORBIDDEN, 'this User is inactive')
-  }
-
-  if (
-    !(await User.isPasswordMatched(payload.oldPassword, isUserExists.password))
-  ) {
-    throw new AppError(status.FORBIDDEN, 'password deos not matched')
-  }
-
-  const newHashedPass = await bcrypt.hash(
-    payload.newPassword,
-    Number(config.bcrypt_salt_rounds),
-  )
-
-  //   bd date
-  //   new Date().setHours(new Date().getHours() + 6)
-
-  await User.findOneAndUpdate(
-    { id: user.userId, role: user.role },
-    {
-      password: newHashedPass,
-      needsPasswordChange: false,
-      passwordChangedAt: new Date(),
-    },
-  )
-
-  return null
-}
 
 export const refreshTokenService = async (token: string) => {
   if (!token) {
@@ -180,10 +132,8 @@ export const refreshTokenService = async (token: string) => {
 }
 
 export const forgetPasswordService = async (payload: any) => {
- console.log('ddddddddddddddddddddddddddddddddddddddd', payload)
 
-  
-  let isUserExists;
+ let isUserExists;
   if(payload?.email){
     isUserExists = await User.isUserExistsByEmail(payload?.email)
   } else if(payload?.phoneNumber){
@@ -290,3 +240,124 @@ console.log('updated user', updated)
 
   return updated
 }
+
+
+
+export const changePasswordService = async (token: string, payload: any) => {
+  const decoded = verifyToken(token, config.jwt_access_secret as string)
+
+  const { userId, role, id, email } = decoded
+
+  const isUserExists = await User.isUserExistsByCustomId(id, email)
+
+  if (!isUserExists) {
+    throw new AppError(status.NOT_FOUND, 'User is not found')
+  }
+
+  
+  if (
+    !(await User.isPasswordMatched(payload.oldPassword, isUserExists.password))
+  ) {
+    throw new AppError(status.FORBIDDEN, 'password deos not matched')
+  }
+
+
+
+  const isDeleted = isUserExists.isDeleted
+  if (isDeleted) {
+    throw new AppError(status.FORBIDDEN, 'this User is deleted')
+  }
+
+  const userStatus = isUserExists.status
+  if (userStatus === 'blocked') {
+    throw new AppError(status.FORBIDDEN, 'this User is blocked')
+  }
+
+  if (userStatus === 'inactive') {
+    throw new AppError(status.FORBIDDEN, 'this User is inactive')
+  }
+
+  if (isUserExists.id !== userId && isUserExists.role !== role) {
+    throw new AppError(status.FORBIDDEN, 'You are Forbidden')
+  }
+
+  const newHashedPass = await bcrypt.hash(
+    payload.newPassword,
+    Number(config.bcrypt_salt_rounds),
+  )
+
+  const updated = await User.findOneAndUpdate(
+    { _id: userId, role },
+    {
+      $set: {
+        password: newHashedPass,
+        needsPasswordChange: false,
+        passwordChangedAt: new Date(),
+      },
+    },
+    { new: true, runValidators: true, select: '+password' }, 
+  )
+  if (!updated) {
+    throw new AppError(
+      status.INTERNAL_SERVER_ERROR,
+      'Failed to update password',
+    )
+  }
+
+  return updated
+}
+
+
+
+// export const userChangePasswordService = async (
+//   user: JwtPayload,
+//   payload: { newPassword: string; oldPassword: string },
+// ) => {
+//   const isUserExists = await User.isUserExistsByCustomId(
+//     user?.userId,
+//     user?.email,
+//   )
+
+//   if (!isUserExists) {
+//     throw new AppError(status.NOT_FOUND, 'User is not found')
+//   }
+
+//   const isDeleted = isUserExists.isDeleted
+//   if (isDeleted) {
+//     throw new AppError(status.FORBIDDEN, 'this User is deleted')
+//   }
+
+//   const userStatus = isUserExists.status
+//   if (userStatus === 'blocked') {
+//     throw new AppError(status.FORBIDDEN, 'this User is blocked')
+//   }
+
+//   if (userStatus === 'inactive') {
+//     throw new AppError(status.FORBIDDEN, 'this User is inactive')
+//   }
+
+//   if (
+//     !(await User.isPasswordMatched(payload.oldPassword, isUserExists.password))
+//   ) {
+//     throw new AppError(status.FORBIDDEN, 'password deos not matched')
+//   }
+
+//   const newHashedPass = await bcrypt.hash(
+//     payload.newPassword,
+//     Number(config.bcrypt_salt_rounds),
+//   )
+
+//   //   bd date
+//   //   new Date().setHours(new Date().getHours() + 6)
+
+//   await User.findOneAndUpdate(
+//     { id: user.userId, role: user.role },
+//     {
+//       password: newHashedPass,
+//       needsPasswordChange: false,
+//       passwordChangedAt: new Date(),
+//     },
+//   )
+
+//   return null
+// }
