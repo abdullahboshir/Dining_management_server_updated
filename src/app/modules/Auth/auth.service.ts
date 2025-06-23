@@ -10,7 +10,7 @@ import { sendEmail } from '../../utils/sendEmail'
 import { Types } from 'mongoose'
 import { USER_ROLE } from '../User/user.constant'
 import { Admin } from '../Admin/admin.model'
-import Student from '../Student/student.model'
+import {Student} from '../Student/student.model'
 import { Manager } from '../Manager/manager.model'
 
 export const userLoginService = async (payload: TLoginUser) => {

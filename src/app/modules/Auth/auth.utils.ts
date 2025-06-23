@@ -1,10 +1,10 @@
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { Types } from 'mongoose';
 import { USER_ROLE } from '../User/user.constant';
-import Student from '../Student/student.model';
 import { Manager } from '../Manager/manager.model';
 import { Admin } from '../Admin/admin.model';
 import User from '../User/user.model';
+import { Student } from '../Student/student.model';
 
 export const createToken = (
   jwtPayload: { userId: Types.ObjectId; role: string },

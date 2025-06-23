@@ -252,6 +252,6 @@ studentSchema.virtual('fullName').get(function () {
 })
 
 // Create the Mongoose model
-const Student = mongoose.model<TStudent>('Student', studentSchema)
+export const Student = mongoose.model<TStudent>('Student', studentSchema)
 
-export default Student
+

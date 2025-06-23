@@ -80,6 +80,5 @@ mealSchema.statics.isMealExists = async function (mealId: Types.ObjectId) {
 // })
 
 // Create the model for Meals
-const Meal = model<TMeal, TMealExists>('Meal', mealSchema)
+export const Meal = model<TMeal, TMealExists>('Meal', mealSchema)
 
-export default Meal

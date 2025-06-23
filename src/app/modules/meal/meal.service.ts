@@ -5,8 +5,8 @@ import {
   getFutureDate,
   previousDateBD,
 } from '../../utils/currentDateBD'
-import Student from '../Student/student.model'
-import Meal from './meal.model'
+
+import {Meal} from './meal.model'
 import { mealInfoObj, mealSearchableFields } from './meal.const'
 import { Dining } from '../Dining/dining.model'
 import { Hall } from '../Hall/hall.model'
@@ -18,6 +18,7 @@ import {
 } from './meal.utils'
 import { USER_STATUS } from '../User/user.constant'
 import QueryBuilder from '../../builder/QueryBuilder'
+import { Student } from '../Student/student.model'
 
 const { currentYear, currentMonth, currentDay } = currentDateBD()
 

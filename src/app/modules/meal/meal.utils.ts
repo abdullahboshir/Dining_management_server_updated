@@ -1,7 +1,7 @@
 import status from 'http-status'
 import AppError from '../../errors/AppError'
 import { currentDateBD, previousDateBD } from '../../utils/currentDateBD'
-import Meal from './meal.model'
+import {Meal} from './meal.model'
 import { mealInfoObj } from './meal.const'
 import { Hall } from '../Hall/hall.model'
 import { startSession } from 'mongoose'

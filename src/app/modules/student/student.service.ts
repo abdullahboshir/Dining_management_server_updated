@@ -1,10 +1,10 @@
 import { startSession } from 'mongoose'
 import { TStudent } from './student.interface'
-import Student from './student.model'
 import User from '../User/user.model'
 import { updateMutableData } from './student.utils'
 import { studentSearchableFields } from './student.const'
 import QueryBuilder from '../../builder/QueryBuilder'
+import { Student } from './student.model'
 
 export const getAllStudentService = async (query: Record<string, unknown>) => {
   const mealQuery = new QueryBuilder(
