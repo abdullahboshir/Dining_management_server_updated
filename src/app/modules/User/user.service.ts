@@ -1,3 +1,5 @@
+/* eslint-disable no-unsafe-optional-chaining */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { startSession, Types } from 'mongoose'
 import config from '../../config'
 import { TUser } from './user.interface'
@@ -21,13 +23,13 @@ import { findRoleBaseUser } from '../Auth/auth.utils'
 import { TMeal } from '../Meal/meal.interface'
 import { TStudent } from '../Student/student.interface'
 import { Student } from '../Student/student.model'
-import { mealInfoObj } from '../Meal/meal.const'
 import { Meal } from '../Meal/meal.model'
+import { mealInfoObj } from '../Meal/meal.const'
 
 export const createStudentService = async (
   password: string,
   studentData: TStudent,
-  file: any,
+  file: Express.Multer.File,
 ) => {
   const userData: Partial<TUser> = {}
   const mealData: Partial<TMeal> = {}
@@ -67,8 +69,7 @@ export const createStudentService = async (
       )) as any
       studentData.profileImg = secure_url
       userData.profileImg = secure_url
-    } else {
-    }
+    } 
 
     // create User
     userData.id = id
@@ -199,7 +200,6 @@ export const createManagerService = async (
       )) as any
       managerData.profileImg = secure_url
       userData.profileImg = secure_url
-    } else {
     }
 
     // create User
@@ -279,7 +279,6 @@ export const createAdminService = async (
       )) as any
       adminData.profileImg = secure_url
       userData.profileImg = secure_url
-    } else {
     }
 
     // create User

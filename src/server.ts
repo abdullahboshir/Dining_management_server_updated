@@ -5,6 +5,7 @@ import app from './app'
 import config from './app/config'
 import { seedHallandDining, seedMeal, seedSuperAdmin } from './app/DB'
 
+
 let server: Server
 
 async function main() {

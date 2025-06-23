@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import status from 'http-status'
 import { findRoleBaseUser } from '../Auth/auth.utils'
 import User from '../User/user.model'
@@ -46,7 +47,7 @@ export const getAllNoticesService = async (user: any, query: any) => {
 
 
 export const updatePinnedService = async (
-  _id: Object,
+  _id: string,
   user: any
 ) => {
 

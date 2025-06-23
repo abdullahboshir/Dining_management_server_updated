@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { RequestHandler } from 'express'
 import status from 'http-status'
 import {
@@ -13,7 +14,7 @@ import { Types } from 'mongoose'
 
 const createStudent: RequestHandler = catchAsync(async (req, res) => {
   const { password, studentData } = req.body
-  const result = await createStudentService(password, studentData, req.file)
+  const result = await createStudentService(password, studentData, req?.file as any)
   sendResponse(res, {
     success: true,
     statusCode: status.OK,
@@ -58,7 +59,15 @@ const updateUserStatus: RequestHandler = catchAsync(async (req, res) => {
 })
 
 const getMe: RequestHandler = catchAsync(async (req, res) => {
-  const { userId, role } = req?.user
+  if (!req.user) {
+    return sendResponse(res, {
+      success: false,
+      statusCode: status.UNAUTHORIZED,
+      message: 'User information not found in request',
+      data: null,
+    })
+  }
+  const { userId, role } = req.user
 
   const result = await getMeService(userId, role)
   sendResponse(res, {

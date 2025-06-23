@@ -26,7 +26,7 @@ export interface UserModel extends Model<TUser> {
   isUserExistsByEmail(email: string): Promise<TUser>
   isUserExistsByPhoneNumber(phoneNumber: string): Promise<TUser>
 
-  isPasswordMatched(plainPass: string, hashedPass: string): Promise<Boolean>
+  isPasswordMatched(plainPass: string, hashedPass: string): Promise<boolean>
 
   isJWTIssuedBeforePasswordChanged(
     passwordChangedAtTime: Date,

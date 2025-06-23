@@ -3,7 +3,7 @@ import { Response } from 'express'
 type TResponse<T> = {
   statusCode: number
   success: boolean
-  message?: String
+  message?: string
   data: T
   meta?: {
     total: number

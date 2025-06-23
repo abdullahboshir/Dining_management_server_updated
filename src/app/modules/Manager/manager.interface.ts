@@ -37,6 +37,6 @@ export type TManager = {
 }
 
 export interface ManagerModel extends Model<TManager> {
-  // eslint-disable-next-line no-unused-vars
+   
   isUserExists(id: string): Promise<TManager | null>
 }
