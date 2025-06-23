@@ -1,13 +1,13 @@
 import { Router } from 'express'
-import { StudentRoutes } from '../modules/Student/student.route'
 import { UserRoutes } from '../modules/User/user.route'
 import { HallRoutes } from '../modules/Hall/hall.route'
 import { DiningRoutes } from '../modules/Dining/dining.route'
-import { MealRoutes } from '../modules/Meal/meal.route'
 import { AuthRoutes } from '../modules/Auth/auth.route'
 import { ManagerRoutes } from '../modules/Manager/manager.route'
 import { AdminRoutes } from '../modules/Admin/admin.route'
 import { NoticeRoutes } from '../modules/Notice/notice.route'
+import { StudentRoutes } from '../modules/Student/student.route'
+import { MealRoutes } from '../modules/Meal/meal.route'
 
 const router = Router()
 

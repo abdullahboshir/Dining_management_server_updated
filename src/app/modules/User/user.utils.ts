@@ -1,4 +1,3 @@
-import AppError from '../../errors/AppError'
 import { currentDateBD } from '../../utils/currentDateBD'
 import { TStudent } from '../Student/student.interface'
 import { USER_ROLE } from './user.constant'

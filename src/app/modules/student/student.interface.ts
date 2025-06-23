@@ -1,5 +1,4 @@
-import { Document, Model, Types } from 'mongoose'
-import { TMeal } from '../Meal/meal.interface'
+import { Document, Types } from 'mongoose'
 
 export type TGuardian = {
   fatherName: string

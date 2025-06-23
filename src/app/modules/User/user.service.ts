@@ -1,6 +1,5 @@
 import { startSession, Types } from 'mongoose'
 import config from '../../config'
-import { TStudent } from '../Student/student.interface'
 import { TUser } from './user.interface'
 import User from './user.model'
 import {
@@ -8,8 +7,6 @@ import {
   generateManagerId,
   generateStudentId,
 } from './user.utils'
-import {Meal} from '../Meal/meal.model'
-import { mealInfoObj } from '../Meal/meal.const'
 import { currentDateBD } from '../../utils/currentDateBD'
 import { Hall } from '../Hall/hall.model'
 import { Dining } from '../Dining/dining.model'
@@ -20,8 +17,12 @@ import { Manager } from '../Manager/manager.model'
 import { Admin } from '../Admin/admin.model'
 import status from 'http-status'
 import { findRoleBaseUser } from '../Auth/auth.utils'
-import { Student } from '../Student/student.model'
+
 import { TMeal } from '../Meal/meal.interface'
+import { TStudent } from '../Student/student.interface'
+import { Student } from '../Student/student.model'
+import { mealInfoObj } from '../Meal/meal.const'
+import { Meal } from '../Meal/meal.model'
 
 export const createStudentService = async (
   password: string,

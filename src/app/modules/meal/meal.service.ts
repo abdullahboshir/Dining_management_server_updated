@@ -1,9 +1,6 @@
 import { startSession, Types } from 'mongoose'
 import {
   currentDateBD,
-  generateDailyMealDate,
-  getFutureDate,
-  previousDateBD,
 } from '../../utils/currentDateBD'
 
 import {Meal} from './meal.model'
@@ -19,6 +16,7 @@ import {
 import { USER_STATUS } from '../User/user.constant'
 import QueryBuilder from '../../builder/QueryBuilder'
 import { Student } from '../Student/student.model'
+
 
 const { currentYear, currentMonth, currentDay } = currentDateBD()
 
