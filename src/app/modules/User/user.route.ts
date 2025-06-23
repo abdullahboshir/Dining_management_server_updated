@@ -1,12 +1,12 @@
 import express, { NextFunction, Request, Response } from 'express'
 import { UserController } from './user.controller'
 import validateRequest from '../../middlewares/validateRequest'
-import studentValidationSchema from '../Student/student.validation'
 import auth from '../../middlewares/auth'
 import { USER_ROLE } from './user.constant'
 import { upload } from '../../utils/IMGUploader'
 import { managerValidationSchema } from '../Manager/manager.validation'
 import { adminValidationSchema } from '../Admin/admin.validation'
+import studentValidationSchema from '../Student/student.validation'
 const router = express.Router()
 
 const { superAdmin, admin, manager, moderator, student } = USER_ROLE

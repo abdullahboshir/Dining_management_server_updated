@@ -7,8 +7,8 @@ import {Meal} from '../modules/Meal/meal.model'
 import { USER_ROLE } from '../modules/User/user.constant'
 import User from '../modules/User/user.model'
 import { currentDateBD } from '../utils/currentDateBD'
-import { initialDiningObj, initialHallObj } from './initial.const'
 import AppError from '../errors/AppError'
+import { initialDiningObj, initialHallObj } from './initial.const'
 
 const superUser = {
   id: 'superAdmin-0001',

@@ -6,6 +6,7 @@ import { Admin } from '../Admin/admin.model';
 import User from '../User/user.model';
 import { Student } from '../Student/student.model';
 
+
 export const createToken = (
   jwtPayload: { userId: Types.ObjectId; role: string },
   secret: string,

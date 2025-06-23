@@ -8,7 +8,6 @@ import {
   generateManagerId,
   generateStudentId,
 } from './user.utils'
-import { TMeal } from '../Meal/meal.interface'
 import {Meal} from '../Meal/meal.model'
 import { mealInfoObj } from '../Meal/meal.const'
 import { currentDateBD } from '../../utils/currentDateBD'
@@ -22,6 +21,7 @@ import { Admin } from '../Admin/admin.model'
 import status from 'http-status'
 import { findRoleBaseUser } from '../Auth/auth.utils'
 import { Student } from '../Student/student.model'
+import { TMeal } from '../Meal/meal.interface'
 
 export const createStudentService = async (
   password: string,
