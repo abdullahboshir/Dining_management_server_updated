@@ -2,16 +2,11 @@ import status from 'http-status'
 import AppError from '../../errors/AppError'
 import User from '../User/user.model'
 import { TLoginUser } from './auth.interface'
-import jwt, { JwtPayload } from 'jsonwebtoken'
 import config from '../../config'
 import bcrypt from 'bcrypt'
 import { createToken, findRoleBaseUser, verifyToken } from './auth.utils'
 import { sendEmail } from '../../utils/sendEmail'
-import { Types } from 'mongoose'
-import { USER_ROLE } from '../User/user.constant'
-import { Admin } from '../Admin/admin.model'
-import {Student} from '../Student/student.model'
-import { Manager } from '../Manager/manager.model'
+
 
 export const userLoginService = async (payload: TLoginUser) => {
 
