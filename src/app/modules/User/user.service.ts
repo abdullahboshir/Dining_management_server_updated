@@ -43,9 +43,9 @@ export const createStudentService = async (
     throw new Error('The Student has not under in the Hall!')
   }
 
-  const isDiningExist = await Dining.findById({ _id: studentData.dining })
+  const isDiningExists = await Dining.findById({ _id: studentData.dining })
 
-  if (!isDiningExist) {
+  if (!isDiningExists) {
     throw new Error('The Student has not under in Dining!')
   }
 
