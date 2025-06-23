@@ -45,7 +45,7 @@ export const generateStudentId = async (payload: TStudent): Promise<string> => {
   const { academicFaculty, session, classRoll, roomNumber, seatNumber } =
     payload || {}
 
-  if (!academicFaculty || !session || !roomNumber || !seatNumber) {
+  if (!academicFaculty || !session || !roomNumber || !seatNumber || !classRoll) {
     throw new Error('Missing required student fields for ID generation')
   }
 
@@ -78,3 +78,4 @@ export const generateManagerId = async () => {
   const finalId = `${USER_ROLE?.manager}-${newIncrement}-${dateCode}`
   return finalId
 }
+ 

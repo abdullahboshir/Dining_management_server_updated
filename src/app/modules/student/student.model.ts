@@ -162,15 +162,27 @@ const studentSchema = new Schema<TStudent>(
       required: [true, 'Please provide Your Class roll'],
       trim: true,
     },
-    admissionDetails: {
-      admissionFee: {
+    admissionHistory: {
+      amount: {
         type: Number,
-        trim: true,
+        required: true,
+        min: 0,
       },
-      isAdmissionFeePaid: {
+      paymentMethod: {
+        type: String,
+        required: true,
+        trim: true,
+        default: 'cash',
+      },
+      paymentStatus: {
         type: Boolean,
+        required: true,
         default: false,
       },
+      date: {
+        type: Date,
+        required: true,
+      }
     },
     emergencyContact: {
       type: String,
@@ -205,7 +217,7 @@ const studentSchema = new Schema<TStudent>(
       enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
       required: false,
     },
-  }, 
+  },
   {
     timestamps: true,
     toJSON: {

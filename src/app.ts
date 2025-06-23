@@ -10,7 +10,25 @@ import cookieParser = require('cookie-parser')
 app.use(express.json())
 // app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }))
+// app.use(cors({ origin: 'http://localhost:3000', credentials: true }))
+// app.use(cors({ origin: 'https://hall-management-client.vercel.app', credentials: true }))
+
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://hall-management-client.vercel.app'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS')); 
+    }
+  },
+  credentials: true,
+}));
+
 
 app.use('/api/v1', router)
 

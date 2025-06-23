@@ -18,7 +18,12 @@ export const getAllStudentService = async (query: Record<string, unknown>) => {
 }
 
 export const getAStudentService = async (id: string) => {
-  const getAStudent = await Student.findOne({ id })
+  
+  if(!id){
+    return;
+  }
+
+  const getAStudent = await Student.findOne({ _id: id }) 
   return getAStudent
 }
 

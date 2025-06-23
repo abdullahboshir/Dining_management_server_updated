@@ -55,10 +55,13 @@ const studentValidationSchema = z.object({
     .trim(),
   session: z.string().min(1, 'Session is required').trim(),
   classRoll: z.number().min(1, 'Class Roll is required'),
-  admissionDetails: z.object({
-    admissionFee: z.number().min(1, 'Admission Fee is required'),
-    isAdmissionFeePaid: z.boolean().default(false),
-  }),
+  admissionHistory: z.object({
+  amount: z.number().min(0, 'Amount must be positive'),
+  paymentMethod: z.string().min(1, 'Payment method is required'),
+  paymentStatus: z.boolean(),
+  admittedBy: z.string().min(1, 'AdmittedBy is required'),
+  date: z.union([z.string(), z.date()]), // Accept both ISO string and Date object
+}),
   emergencyContact: z.string().min(1, 'Emergency Contact Number is required'),
   profileImg: z.string().optional().default(''),
   guardian: guardianSchema,

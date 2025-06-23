@@ -25,17 +25,21 @@ export type TUserName = {
   lastName: string
 }
 
-export type TAdmissionDetails = {
-  admissionFee?: number
-  isAdmissionFeePaid: boolean
+
+export type TAdmissionHistory = {
+  amount: number
+  paymentMethod?: string
+  paymentStatus: boolean
+  date: Date
 }
+
 
 export type TStudent = Document & {
   createdBy: Types.ObjectId
   hall: Types.ObjectId
   dining: Types.ObjectId
   id: string
-  user: Types.ObjectId
+  user: Types.ObjectId 
   role: 'superAdmin' | 'admin' | 'manager' | 'user' | 'moderator'
   studentPin: string
   name: TUserName
@@ -51,7 +55,7 @@ export type TStudent = Document & {
   session: string
   classRoll: number
   status: 'active' | 'inactive' | 'blocked'
-  admissionDetails: TAdmissionDetails
+  admissionHistory: TAdmissionHistory
   emergencyContact: string
   bloodGroup: TBloodGroup
   profileImg?: string

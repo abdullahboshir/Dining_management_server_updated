@@ -1,5 +1,6 @@
 import mongoose, { Types } from 'mongoose'
 
+
 export type THallPolicies = {
   admissionCharge: number
   maintenanceCharge: number

@@ -36,27 +36,27 @@ export const createStudentService = async (
   ) {
     throw new Error('invalid Dining or Hall!')
   }
-  
+
   const isHallExist = await Hall.findById({ _id: studentData.hall })
-  
+
   if (!isHallExist) {
     throw new Error('The Student has not under in the Hall!')
   }
-  
+
   const isDiningExist = await Dining.findById({ _id: studentData.dining })
-  
+
   if (!isDiningExist) {
     throw new Error('The Student has not under in Dining!')
   }
-  
+
   // console.log
-  
+
   const session = await startSession()
   try {
     //   start session
     session.startTransaction()
     const id = await generateStudentId(studentData)
-    
+
     if (file) {
       const imgName = `${studentData.name.firstName}${id}`
       const imgPath = file?.path
@@ -68,7 +68,7 @@ export const createStudentService = async (
       userData.profileImg = secure_url
     } else {
     }
-    
+
     // create User
     userData.id = id
     userData.password = password || config.default_pass
@@ -77,17 +77,24 @@ export const createStudentService = async (
     userData.phoneNumber = studentData?.phoneNumber
     const { firstName, middleName, lastName } = studentData?.name
     userData.fullName = firstName + ' ' + middleName + ' ' + lastName
-    
+
     const newUser = await User.create([userData], { session })
 
-    
+
     if (!newUser.length) {
-      throw new Error('Failed to create user!') 
+      throw new Error('Failed to create user!')
     }
-    
+
     // create Student
     studentData.id = newUser[0].id
     studentData.user = newUser[0]._id
+    studentData.admissionHistory = {
+      amount: isHallExist?.hallPolicies?.admissionCharge,
+      paymentStatus: true,
+      date: new Date()
+    }
+    
+
     const newStudent = await Student.create([studentData], { session })
 
 
@@ -326,18 +333,18 @@ export const updateUserStatusService = async (
 }
 
 export const getMeService = async (_id: Types.ObjectId, role: string) => {
-  
-  const isUserExists = await User.findOne({_id, role})
-  
+
+  const isUserExists = await User.findOne({ _id, role })
+
   if (!isUserExists) {
     throw new AppError(status.NOT_FOUND, 'User is not found')
   }
 
-  const  result = await findRoleBaseUser(isUserExists?.id, isUserExists?.email, isUserExists?.role);
+  const result = await findRoleBaseUser(isUserExists?.id, isUserExists?.email, isUserExists?.role);
 
   if (!result) {
     throw new AppError(status.NOT_FOUND, 'The user not found!')
   }
- 
+
   return result
 }
