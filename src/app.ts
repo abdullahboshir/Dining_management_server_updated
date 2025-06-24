@@ -16,6 +16,7 @@ app.use(cookieParser())
 
 const allowedOrigins = [
   'http://localhost:3000',
+  'https://dining-management-server-updated.onrender.com',
   'https://hall-management-client.vercel.app'
 ];
 
