@@ -5,8 +5,7 @@ import {
   getStudentController,
   updateStudentController,
 } from './student.controller'
-import auth from '../../middlewares/auth'
-import { USER_ROLE } from '../User/user.constant'
+
 
 const router = express.Router()
 

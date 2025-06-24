@@ -2,11 +2,11 @@ import { NextFunction, Request, Response } from 'express'
 import catchAsync from '../utils/catchAsync'
 import AppError from '../errors/AppError'
 import status from 'http-status'
-import jwt, { JwtPayload, verify } from 'jsonwebtoken'
 import config from '../config'
 import { TUserRole } from '../modules/User/user.interface'
 import User from '../modules/User/user.model'
 import { verifyToken } from '../modules/Auth/auth.utils'
+import { JwtPayload } from 'jsonwebtoken'
 
 const auth = (...requiredRole: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {

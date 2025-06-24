@@ -1,42 +1,45 @@
-import express from 'express'
-const app = express()
-import cors from 'cors'
-import router from './app/routes'
-import globalErrorHandler from './app/middlewares/globalErrorHandler'
-import notFound from './app/middlewares/notFound'
-import cookieParser = require('cookie-parser')
+import express, { Application, Request, Response } from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import router from './app/routes';
+import globalErrorHandler from './app/middlewares/globalErrorHandler';
+import notFound from './app/middlewares/notFound';
 
-// parsers
-app.use(express.json())
-// app.use(express.urlencoded({ extended: true }))
-app.use(cookieParser())
-// app.use(cors({ origin: 'http://localhost:3000', credentials: true }))
-// app.use(cors({ origin: 'https://hall-management-client.vercel.app', credentials: true }))
+const app: Application = express();
 
+// === MIDDLEWARES ===
+app.use(express.json());
+app.use(cookieParser());
+
+// === CORS CONFIG ===
 const allowedOrigins = [
   'http://localhost:3000',
   'https://hall-management-client.vercel.app'
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
+  origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS')); 
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
 }));
 
+// For preflight requests
+app.options('*', cors());
 
-app.use('/api/v1', router)
+// === ROUTES ===
+app.use('/api/v1', router);
 
-app.get('/', (req, res) => {
-  res.send('Hello, Dining management world!')
-})
+app.get('/', (req: Request, res: Response) => {
+  res.send('✅ Dining Management API is Live!');
+});
 
-app.use(globalErrorHandler)
-app.use(notFound)
+// === ERROR HANDLING ===
+app.use(globalErrorHandler);
+app.use(notFound);
 
-export default app
+export default app;
