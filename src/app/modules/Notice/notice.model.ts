@@ -1,5 +1,5 @@
-import { Schema, model, Types } from 'mongoose'
-import { FilterByEnum, TNotice } from './notice.interface'
+import { Schema, model } from 'mongoose'
+import { TNotice } from './notice.interface'
 
 const noticeSchema = new Schema<TNotice>(
   {
@@ -47,28 +47,28 @@ const noticeSchema = new Schema<TNotice>(
       default: 'General',
     },
     audience: {
-      isAll: { type: Boolean, default: false }, // Changed to boolean
-      role: {
-        type: String,
-        enum: ['admin', 'manager', 'user', 'moderator'],
-      },
-      specificUsers: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: 'User',
-        },
-      ],
-      filtered: {
-        filterBy: {
-          type: String,
-          enum: Object.values(FilterByEnum),
-        },
-        filter: {
-          type: Schema.Types.Mixed,
-          default: {},
-        },
-      },
+      type: String,
+      enum: ['admin', 'manager', 'user', 'moderator', 'student', 'all'],
+      default: 'all',
+      set: (val: string) => val?.toLowerCase(),
     },
+    //   specificUsers: [
+    //     {
+    //       type: Schema.Types.ObjectId,
+    //       ref: 'User',
+    //     },
+    //   ],
+    //   filtered: {
+    //     filterBy: {
+    //       type: String,
+    //       enum: Object.values(FilterByEnum),
+    //     },
+    //     filter: {
+    //       type: Schema.Types.Mixed,
+    //       default: {},
+    //     },
+    //   },
+    // },
     status: {
       type: String,
       enum: ['Active', 'Inactive', 'Archived'],
@@ -84,60 +84,62 @@ const noticeSchema = new Schema<TNotice>(
       enum: ['Pending', 'Published'],
       default: 'Pending',
     },
-    scheduled: {
-      scheduleAt: { type: Date },
-      expiryDate: { type: Date },
-      type: {
-        isInstant: { type: Boolean, default: false },
-        perSession: [{ type: Types.ObjectId, ref: 'Session' }],
-        yearly: {
-          date: { type: String },
-          time: { type: String },
-        },
-        monthly: {
-          date: { type: String },
-          time: { type: String },
-        },
-        weekly: {
-          days: [
-            {
-              type: String,
-              enum: [
-                'Sunday',
-                'Monday',
-                'Tuesday',
-                'Wednesday',
-                'Thursday',
-                'Friday',
-                'Saturday',
-              ],
-            },
-          ],
-          time: { type: String },
-        },
-        daily: {
-          time: { type: String },
-        },
-        hourly: {
-          minute: { type: Number },
-        },
-        recurring: {
-          interval: { type: Number },
-          unit: {
-            type: String,
-            enum: ['minutes', 'hours', 'days', 'weeks', 'months', 'years'],
-          },
-        },
-        limited: {
-          count: { type: Number },
-        },
-        event: { type: String },
-      },
-    },
+    scheduleAt: { type: Date },
+    expiryDate: { type: Date },
+    // scheduled: {
+    //   scheduleAt: { type: Date },
+    //   expiryDate: { type: Date },
+    //   type: {
+    //     isInstant: { type: Boolean, default: false },
+    //     perSession: [{ type: Types.ObjectId, ref: 'Session' }],
+    //     yearly: {
+    //       date: { type: String },
+    //       time: { type: String },
+    //     },
+    //     monthly: {
+    //       date: { type: String },
+    //       time: { type: String },
+    //     },
+    //     weekly: {
+    //       days: [
+    //         {
+    //           type: String,
+    //           enum: [
+    //             'Sunday',
+    //             'Monday',
+    //             'Tuesday',
+    //             'Wednesday',
+    //             'Thursday',
+    //             'Friday',
+    //             'Saturday',
+    //           ],
+    //         },
+    //       ],
+    //       time: { type: String },
+    //     },
+    //     daily: {
+    //       time: { type: String },
+    //     },
+    //     hourly: {
+    //       minute: { type: Number },
+    //     },
+    //     recurring: {
+    //       interval: { type: Number },
+    //       unit: {
+    //         type: String,
+    //         enum: ['minutes', 'hours', 'days', 'weeks', 'months', 'years'],
+    //       },
+    //     },
+    //     limited: {
+    //       count: { type: Number },
+    //     },
+    //     event: { type: String },
+    //   },
+    // },
     actions: {
-      label: { type: String, required: true },
-      url: { type: String, required: true },
-      type: { type: String, enum: ['external', 'internal'], required: true },
+      label: { type: String },
+      url: { type: String },
+      type: { type: String, enum: ['external', 'internal'] },
     },
     eventTrigger: {
       type: {

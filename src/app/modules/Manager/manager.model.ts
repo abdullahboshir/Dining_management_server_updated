@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose, { Schema, model } from 'mongoose'
 import { ManagerModel, TManager, TUserName } from './manager.interface'
 import { BloodGroup, Gender } from './manager.constant'

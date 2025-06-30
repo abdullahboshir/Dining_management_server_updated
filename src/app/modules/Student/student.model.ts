@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose, { Schema } from 'mongoose'
 import validator from 'validator'
 import { TAddress, TGuardian, TStudent } from './student.interface'
@@ -184,7 +185,7 @@ const studentSchema = new Schema<TStudent>(
         required: true,
       }
     },
-    emergencyContact: {
+    emergencyContactNo: {
       type: String,
       required: [true, 'Emergency Contact Number is required'],
     },

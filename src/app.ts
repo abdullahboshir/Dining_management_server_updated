@@ -30,7 +30,7 @@ app.use(cors({
       return callback(null, true);
     }
 
-    // Log for debugging purposes
+ 
     console.error(`❌ CORS Blocked: Origin ${origin} not allowed`);
     return callback(new Error('Not allowed by CORS'));
   },

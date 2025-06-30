@@ -9,7 +9,9 @@ import {
 
 export const createNoticeController = catchAsync(async (req, res) => {
   const { noticeData } = req.body
-  const data = await createNoticeService(noticeData)
+  console.log('reqqqqqqqqqqqqqqqq', req.body)
+  const files = req?.files;
+  const data = await createNoticeService(noticeData, files)
 
   sendResponse(res, {
     success: true,
@@ -20,7 +22,7 @@ export const createNoticeController = catchAsync(async (req, res) => {
 })
 
 export const getAllNoticesController = catchAsync(async (req, res) => {
-  
+
   const data = await getAllNoticesService(req.user, req.query)
 
   sendResponse(res, {

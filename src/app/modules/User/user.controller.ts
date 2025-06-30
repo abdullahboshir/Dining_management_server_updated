@@ -70,6 +70,7 @@ const getMe: RequestHandler = catchAsync(async (req, res) => {
   const { userId, role } = req.user
 
   const result = await getMeService(userId, role)
+
   sendResponse(res, {
     success: true,
     statusCode: status.OK,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { startSession } from 'mongoose'
 import { Manager } from './manager.model'
 import status from 'http-status'

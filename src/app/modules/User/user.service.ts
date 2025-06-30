@@ -341,7 +341,7 @@ export const getMeService = async (_id: Types.ObjectId, role: string) => {
   }
 
   const result = await findRoleBaseUser(isUserExists?.id, isUserExists?.email, isUserExists?.role);
-
+ 
   if (!result) {
     throw new AppError(status.NOT_FOUND, 'The user not found!')
   }

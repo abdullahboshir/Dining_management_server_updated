@@ -8,6 +8,7 @@ import { AdminRoutes } from '../modules/Admin/admin.route'
 import { NoticeRoutes } from '../modules/Notice/notice.route'
 import { StudentRoutes } from '../modules/Student/student.route'
 import { MealRoutes } from '../modules/Meal/meal.route'
+import { postRoutes } from '../modules/Post/post.route'
 
 const router = Router()
 
@@ -47,6 +48,10 @@ const moduleRoutes = [
   {
     path: '/auth',
     route: AuthRoutes,
+  },
+  {
+    path: '/post',
+    route: postRoutes,
   },
 ]
 

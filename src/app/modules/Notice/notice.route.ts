@@ -14,7 +14,7 @@ const router = express.Router()
 router.post(
   '/create-notice',
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
-  upload.single('file'),
+  upload.array('files', 6),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = JSON.parse(req.body.data)
     next()

@@ -55,7 +55,7 @@ export type TStudent = Document & {
   classRoll: number
   status: 'active' | 'inactive' | 'blocked'
   admissionHistory: TAdmissionHistory
-  emergencyContact: string
+  emergencyContactNo: string
   bloodGroup: TBloodGroup
   profileImg?: string
   guardian: TGuardian

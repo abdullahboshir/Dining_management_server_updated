@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ObjectId } from 'mongoose'
 
 export enum FilterByEnum {
@@ -25,37 +26,37 @@ export interface TNotice {
     | 'System'
     | 'Reminder'
     | 'Policy'
-  audience: {
-    isAll: boolean
-    role?: 'admin' | 'manager' | 'user' | 'moderator'
-    specificUsers?: ObjectId[]
-    filtered?: {
-      filterBy: FilterByEnum
-      filter: Record<string, any>
-    }
-  }
+  audience: 'admin' | 'manager' | 'user' | 'moderator' | 'student' | 'all'
+    // specificUsers?: ObjectId[]
+    // filtered?: {
+    //   filterBy: FilterByEnum
+    //   filter: Record<string, any>
+    // }
+  
   status: 'Active' | 'Inactive' | 'Archived'
   priority: 'Low' | 'Medium' | 'High'
   publishedStatus: 'Pending' | 'Published'
-  scheduled: {
-    scheduleAt?: Date
+  scheduleAt?: Date
     expiryDate?: Date
-    type: {
-      isInstant: boolean
-      perSession?: ObjectId[]
-      yearly?: { date: string; time: string }
-      monthly?: { date: string; time: string }
-      weekly?: { days: string[]; time: string }
-      daily?: { time: string }
-      hourly?: { minute: number }
-      recurring?: {
-        interval: number
-        unit: 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | 'years'
-      }
-      limited?: { count: number }
-      event?: string
-    }
-  }
+  // scheduled: {
+  //   scheduleAt?: Date
+  //   expiryDate?: Date
+  //   type: {
+  //     isInstant: boolean
+  //     perSession?: ObjectId[]
+  //     yearly?: { date: string; time: string }
+  //     monthly?: { date: string; time: string }
+  //     weekly?: { days: string[]; time: string }
+  //     daily?: { time: string }
+  //     hourly?: { minute: number }
+  //     recurring?: {
+  //       interval: number
+  //       unit: 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | 'years'
+  //     }
+  //     limited?: { count: number }
+  //     event?: string
+  //   }
+  // }
   actions?: {
     label: string
     url: string

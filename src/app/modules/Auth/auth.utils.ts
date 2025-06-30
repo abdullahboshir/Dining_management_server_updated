@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { Types } from 'mongoose';
 import { USER_ROLE } from '../User/user.constant';

@@ -5,17 +5,39 @@ import User from '../User/user.model'
 import { TNotice } from './notice.interface'
 import { Notice } from './notice.model'
 import AppError from '../../errors/AppError'
+import { sendImageToCloudinary } from '../../utils/IMGUploader'
 
-export const createNoticeService = async (payload: TNotice) => {
+export const createNoticeService = async (payload: TNotice, files: any) => {
+
+  
+  const imgRandomName = Date.now().toString() + '-' + Math.floor(Math.random() * 100000);
+  const images = []
+  
+  
+    if (files.length > 0) {
+      for (const file of files) {
+        const imgName = `${file?.originalname}-${imgRandomName}`
+        const imgPath = file?.path
+        const { secure_url } = (await sendImageToCloudinary(
+          imgName,
+          imgPath,
+        )) as any
+        images.push(secure_url)
+      }
+      
+      payload.attachments = images
+    }
+    
+    console.log('payload11111111111111111111111111', payload)
   const response = await Notice.create(payload)
   return response
 }
 
 export const getAllNoticesService = async (user: any, query: any) => {
+
   const isAll = query?.isAllNotication === 'true';
   const isPinned = query?.isPinned === 'true';
   
-
   const isUserExists = await User.findOne({_id: user?.userId})
   
   if (!isUserExists) {
@@ -27,7 +49,7 @@ export const getAllNoticesService = async (user: any, query: any) => {
   if (!roleBaseUser) {
     throw new AppError(status.NOT_FOUND, 'The user not found!')
   }
-  console.log('got the usr rrrrrrrrrrrrrr', user, query)
+
   
   const filter: any = {};
   
@@ -35,6 +57,7 @@ export const getAllNoticesService = async (user: any, query: any) => {
     filter.isPinned = {$in: [roleBaseUser?._id]}
   }else if(!isAll){
     filter.createdBy = user?.userId
+    console.log('roleBaseUser?._id', filter)
   }
   
 
