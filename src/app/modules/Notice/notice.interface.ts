@@ -1,11 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ObjectId } from 'mongoose'
+import { ObjectId, Types } from 'mongoose'
 
 export enum FilterByEnum {
   Hall = 'Hall',
   Dining = 'Dining',
   Tag = 'Tag',
   CustomQuery = 'CustomQuery',
+}
+
+export type TReply = {
+  user: Types.ObjectId;
+  text: string;
+  likes?: number;
+  createdAt?: Date;
+}
+
+export type TComment = {
+  user: Types.ObjectId;
+  text: string;
+   likes?: string[];
+  replies?: TReply[];
+  createdAt?: Date;
 }
 
 export interface TNotice {
@@ -36,6 +51,8 @@ export interface TNotice {
   status: 'Active' | 'Inactive' | 'Archived'
   priority: 'Low' | 'Medium' | 'High'
   publishedStatus: 'Pending' | 'Published'
+    likes?: string[];
+    comments?: TComment[];
   scheduleAt?: Date
     expiryDate?: Date
   // scheduled: {

@@ -18,7 +18,7 @@ export type TComment = {
 export type TPost = {
   title: string;
   description: string;
-  creator: Types.ObjectId;
+  createdBy: Types.ObjectId;
   images?: string[];
   status?: "published" | "draft" | "hidden";
   likes?: string[];

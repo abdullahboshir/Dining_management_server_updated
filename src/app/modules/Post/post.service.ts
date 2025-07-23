@@ -27,7 +27,7 @@ const imgRandomName = Date.now().toString() + Math.floor(Math.random() * 1000);
     postData.images = images
   }
 
-  postData.creator = user?.userId
+  postData.createdBy = user?.userId
   const result = await Post.create(postData)
 
   return result
@@ -35,7 +35,7 @@ const imgRandomName = Date.now().toString() + Math.floor(Math.random() * 1000);
 
 
 export const getAllPostsService = async () => {
-    const posts = await Post.find({})
+    const posts = await Post.find({}).populate('createdBy')
     return posts;
 }
 

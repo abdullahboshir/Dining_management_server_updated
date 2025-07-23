@@ -25,7 +25,7 @@ const PostSchema = new Schema(
   {
     title: { type: String, required: true, trim: true },
     description: { type: String, required: true },
-    creator: { type: Types.ObjectId, ref: 'User', required: true },
+    createdBy: { type: Types.ObjectId, ref: 'User', required: true },
     images: [{ type: String }],
     status: {
       type: String,

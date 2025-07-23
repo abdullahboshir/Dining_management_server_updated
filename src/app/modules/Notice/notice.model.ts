@@ -1,5 +1,26 @@
-import { Schema, model } from 'mongoose'
+import { Schema, Types, model } from 'mongoose'
 import { TNotice } from './notice.interface'
+
+const ReplySchema = new Schema(
+  {
+    user: { type: Types.ObjectId, ref: 'User', required: true },
+    text: { type: String, required: true },
+    likes: { type: Number, default: 0 },
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: false },
+)
+
+const CommentSchema = new Schema(
+  {
+    user: { type: Types.ObjectId, ref: 'User', required: true },
+    text: { type: String, required: true },
+    likes: { type: Number, default: 0 },
+    replies: [ReplySchema],
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: false },
+)
 
 const noticeSchema = new Schema<TNotice>(
   {
@@ -84,6 +105,8 @@ const noticeSchema = new Schema<TNotice>(
       enum: ['Pending', 'Published'],
       default: 'Pending',
     },
+    likes: [{ type: String, default: 0 }],
+    comments: [CommentSchema],
     scheduleAt: { type: Date },
     expiryDate: { type: Date },
     // scheduled: {
