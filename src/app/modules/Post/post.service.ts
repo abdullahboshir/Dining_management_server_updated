@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import status from 'http-status';
+import AppError from '../../errors/AppError';
 import { sendImageToCloudinary } from '../../utils/IMGUploader'
+import User from '../User/user.model';
 import { TPost } from './post.interface'
 import { Post } from './post.model'
+import { findRoleBaseUser } from '../Auth/auth.utils';
 
 export const createPostService = async (
   postData: TPost,
@@ -49,4 +53,31 @@ export const updateLikeService = async (postId: string, userId: string) => {
 
     const posts = await Post.findByIdAndUpdate(postId, checked, { new: true })
     return posts;
+}
+
+
+
+export const updateBookmarkService = async (
+  _id: string,
+  user: any
+) => {
+console.log('is gootedddddddddd', _id, user)
+  const isUserExists = await User.findOne({_id: user?.userId});
+
+  if(!isUserExists){
+    throw new AppError(status.NOT_FOUND, 'The user not found')
+  }
+  
+  
+  const  result = await findRoleBaseUser(isUserExists?.id, isUserExists?.email, isUserExists?.role);
+
+
+  
+
+  const isAlreadyBookmark  = await Post.findOne({_id, bookmark: {$in: [result?._id]}});
+
+  const finalResult = await Post.findByIdAndUpdate(_id, 
+    isAlreadyBookmark ? {$pull: { bookmark: result?._id }} : {$addToSet: { bookmark: result?._id }, 
+  })
+  return finalResult
 }

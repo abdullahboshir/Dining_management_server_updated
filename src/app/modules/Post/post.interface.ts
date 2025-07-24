@@ -23,6 +23,8 @@ export type TPost = {
   status?: "published" | "draft" | "hidden";
   likes?: string[];
   comments?: TComment[];
+  bookmark?: Types.ObjectId[]
+  isHide?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

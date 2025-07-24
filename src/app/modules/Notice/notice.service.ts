@@ -35,7 +35,7 @@ export const createNoticeService = async (payload: TNotice, files: any) => {
 
 export const getAllNoticesService = async (user: any, query: any) => {
 
-  const isAll = query?.isAllNotication === 'true';
+  const isAll = query?.isAllNotifications === 'true';
   const isPinned = query?.isPinned === 'true';
   
   const isUserExists = await User.findOne({_id: user?.userId})

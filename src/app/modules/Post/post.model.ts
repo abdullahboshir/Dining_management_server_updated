@@ -34,6 +34,10 @@ const PostSchema = new Schema(
     },
     likes: [{ type: String, default: 0 }],
     comments: [CommentSchema],
+    bookmark: [{
+      type: Types.ObjectId, ref: 'User'
+    }],
+    isHide: Boolean
   },
   {
     timestamps: true,
