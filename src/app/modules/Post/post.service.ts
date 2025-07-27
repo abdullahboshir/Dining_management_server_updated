@@ -1,11 +1,7 @@
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import status from 'http-status'
-import AppError from '../../errors/AppError'
 import { sendImageToCloudinary } from '../../utils/IMGUploader'
-import User from '../User/user.model'
 import { Post } from './post.model'
-import { findRoleBaseUser } from '../Auth/auth.utils'
 import { Types } from 'mongoose'
 import { IComment, IPost } from './post.interface'
 import { generateCommentId } from './post.utils'
@@ -99,35 +95,24 @@ export const updateCommentReactionsServices = async (
         )
 
   if (!updatedPost) {
-    throw new Error('Post or comment not found')
+    throw new Error('Post or comments not found')
   }
 
   return updatedPost
 }
 
 export const updateBookmarkService = async (_id: string, user: any) => {
-  const isUserExists = await User.findOne({ _id: user?.userId })
-
-  if (!isUserExists) {
-    throw new AppError(status.NOT_FOUND, 'The user not found')
-  }
-
-  const result = await findRoleBaseUser(
-    isUserExists?.id,
-    isUserExists?.email,
-    isUserExists?.role,
-  )
 
   const isAlreadyBookmark = await Post.findOne({
     _id,
-    bookmark: { $in: [result?._id] },
+    bookmarks: { $in: [user.userId] } 
   })
 
   const finalResult = await Post.findByIdAndUpdate(
     _id,
     isAlreadyBookmark
-      ? { $pull: { bookmark: result?._id } }
-      : { $addToSet: { bookmark: result?._id } },
+      ? { $pull: { bookmarks: user?.userId } }
+      : { $push: { bookmarks: user?.userId } },
   )
   return finalResult
 }

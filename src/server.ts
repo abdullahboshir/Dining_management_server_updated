@@ -13,6 +13,7 @@ async function main() {
   try {
     if (!config.db_url) {
       console.log('Database URL is missing'.red)
+      
       return
     }
     const connection = await mongoose.connect(config.db_url as string)
