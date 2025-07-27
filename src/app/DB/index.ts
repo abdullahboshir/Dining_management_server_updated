@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { startSession } from 'mongoose'
 import config from '../config'
 import { Dining } from '../modules/Dining/dining.model'
 import { Hall } from '../modules/Hall/hall.model'
 import { mealInfoObj } from '../modules/Meal/meal.const'
-import {Meal} from '../modules/Meal/meal.model'
+import { Meal } from '../modules/Meal/meal.model'
 import { USER_ROLE } from '../modules/User/user.constant'
 import User from '../modules/User/user.model'
 import { currentDateBD } from '../utils/currentDateBD'
@@ -32,7 +33,7 @@ export const seedSuperAdmin = async () => {
   }
 }
 
-export const seedHallandDining = async (hallName: string) => {
+export const seedHallAndDining = async (hallName: string) => {
   const isSuperAdminExists = await User.findOne({ role: USER_ROLE.superAdmin })
 
   const isHallExist = await Hall.find()
@@ -49,9 +50,8 @@ export const seedHallandDining = async (hallName: string) => {
 
       const hallObj = initialHallObj(isSuperAdminExists?._id)
 
-      isSuperAdminExists && (hallObj.superAdmin = isSuperAdminExists?._id)
-      isSuperAdminExists &&
-        (hallObj.hallName = hallName ? hallName : hallObj?.hallName)
+      hallObj.superAdmin = isSuperAdminExists?._id
+      hallObj.hallName = hallName ? hallName : hallObj?.hallName
 
       const createdHall = await Hall.create([hallObj], { session })
 
@@ -62,12 +62,11 @@ export const seedHallandDining = async (hallName: string) => {
 
       const diningObj = initialDiningObj(createdHall[0]?._id)
 
-      diningObj && (diningObj.hall = createdHall[0]?._id)
+      diningObj.hall = createdHall[0]?._id
 
-      diningObj &&
-        (diningObj.diningName = createdHall[0]?.hallName
-          ? `Dining of ${createdHall[0]?.hallName}`
-          : diningObj?.diningName)
+      diningObj.diningName = createdHall[0]?.hallName
+        ? `Dining of ${createdHall[0]?.hallName}`
+        : diningObj?.diningName
 
       const createdDining = await Dining.create([diningObj], { session })
 

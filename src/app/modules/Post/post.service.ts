@@ -1,21 +1,23 @@
+/* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import status from 'http-status';
-import AppError from '../../errors/AppError';
+import status from 'http-status'
+import AppError from '../../errors/AppError'
 import { sendImageToCloudinary } from '../../utils/IMGUploader'
-import User from '../User/user.model';
-import { TPost } from './post.interface'
+import User from '../User/user.model'
 import { Post } from './post.model'
-import { findRoleBaseUser } from '../Auth/auth.utils';
+import { findRoleBaseUser } from '../Auth/auth.utils'
+import { Types } from 'mongoose'
+import { IComment, IPost } from './post.interface'
+import { generateCommentId } from './post.utils'
 
 export const createPostService = async (
-  postData: TPost,
+  postData: IPost,
   files: any,
   user: any,
 ) => {
-
-const imgRandomName = Date.now().toString() + Math.floor(Math.random() * 1000);
+  postData.id = generateCommentId()
+  const imgRandomName = Date.now().toString() + Math.floor(Math.random() * 1000)
   const images = []
-
 
   if (files.length > 0) {
     for (const file of files) {
@@ -37,47 +39,109 @@ const imgRandomName = Date.now().toString() + Math.floor(Math.random() * 1000);
   return result
 }
 
-
 export const getAllPostsService = async () => {
-    const posts = await Post.find({}).populate('createdBy')
-    return posts;
+  const posts = await Post.find({})
+    .populate('createdBy')
+    .populate('comments.user')
+  return posts
 }
-
 
 export const updateLikeService = async (postId: string, userId: string) => {
-
-    const isAlreadyLiked = await Post.findOne({_id: postId, likes: userId})
-    console.log('is lsssssssssssssss', isAlreadyLiked)
-
-    const checked = isAlreadyLiked? {$pull: {likes: userId}} : {$addToSet: {likes: userId}}
-
-    const posts = await Post.findByIdAndUpdate(postId, checked, { new: true })
-    return posts;
+  const isAlreadyLiked = await Post.findOne({ _id: postId, likes: userId })
+  const checked = isAlreadyLiked
+    ? { $pull: { likes: userId } }
+    : { $addToSet: { likes: userId } }
+  const posts = await Post.findByIdAndUpdate(postId, checked, { new: true })
+  return posts
 }
 
-
-
-export const updateBookmarkService = async (
-  _id: string,
-  user: any
+export const updateCommentReactionsServices = async (
+  postId: string,
+  userId: Types.ObjectId,
+  payload: { commentId: string; action: 'like' | 'dislike' },
 ) => {
-console.log('is gootedddddddddd', _id, user)
-  const isUserExists = await User.findOne({_id: user?.userId});
+  const post = await Post.findOne({
+    _id: postId,
+    'comments.id': payload.commentId,
+  })
+  const isAlreadyLiked = post?.comments.find((comment) =>
+    comment?.likes?.includes(userId),
+  )
+  const isAlreadyDisliked = post?.comments.find((comment) =>
+    comment?.dislikes?.includes(userId),
+  )
+  
+  const updateOperation =
+  payload.action === 'like'
+      ? isAlreadyLiked
+        ? {
+            $pull: { 'comments.$[elem].likes': userId },
+          }
+        : {
+          $addToSet: { 'comments.$[elem].likes': userId },
+          $pull: { 'comments.$[elem].dislikes': userId }
+          }
+          : isAlreadyDisliked ? {
+          $pull: { 'comments.$[elem].dislikes': userId },
+        } : {
+          $addToSet: { 'comments.$[elem].dislikes': userId }, 
+          $pull: { 'comments.$[elem].likes': userId }
+        }
+ 
+        
+        const updatedPost = await Post.findOneAndUpdate(
+          { _id: postId },
+          updateOperation,
+          {
+            new: true,
+            arrayFilters: [{ 'elem.id': payload.commentId }],
+          },
+        )
 
-  if(!isUserExists){
+  if (!updatedPost) {
+    throw new Error('Post or comment not found')
+  }
+
+  return updatedPost
+}
+
+export const updateBookmarkService = async (_id: string, user: any) => {
+  const isUserExists = await User.findOne({ _id: user?.userId })
+
+  if (!isUserExists) {
     throw new AppError(status.NOT_FOUND, 'The user not found')
   }
-  
-  
-  const  result = await findRoleBaseUser(isUserExists?.id, isUserExists?.email, isUserExists?.role);
 
+  const result = await findRoleBaseUser(
+    isUserExists?.id,
+    isUserExists?.email,
+    isUserExists?.role,
+  )
 
-  
-
-  const isAlreadyBookmark  = await Post.findOne({_id, bookmark: {$in: [result?._id]}});
-
-  const finalResult = await Post.findByIdAndUpdate(_id, 
-    isAlreadyBookmark ? {$pull: { bookmark: result?._id }} : {$addToSet: { bookmark: result?._id }, 
+  const isAlreadyBookmark = await Post.findOne({
+    _id,
+    bookmark: { $in: [result?._id] },
   })
+
+  const finalResult = await Post.findByIdAndUpdate(
+    _id,
+    isAlreadyBookmark
+      ? { $pull: { bookmark: result?._id } }
+      : { $addToSet: { bookmark: result?._id } },
+  )
   return finalResult
+}
+
+export const createCommentService = async (
+  _id: Types.ObjectId,
+  payload: IComment,
+  user: any,
+) => {
+  payload.user = user?.userId
+  const result = await Post.findOneAndUpdate(
+    { _id },
+    { $push: { comments: payload } },
+    { new: true },
+  )
+  return result
 }

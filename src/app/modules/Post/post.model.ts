@@ -1,20 +1,32 @@
 import { Schema, model, Types } from 'mongoose'
+import { generateCommentId } from './post.utils'
 
 const ReplySchema = new Schema(
   {
     user: { type: Types.ObjectId, ref: 'User', required: true },
+    parentId: String,
     text: { type: String, required: true },
     likes: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
+    id: {
+      type: String,
+      default: generateCommentId,
+    },
   },
-  { _id: false }, 
+  { _id: false },
 )
 
 const CommentSchema = new Schema(
   {
     user: { type: Types.ObjectId, ref: 'User', required: true },
+    id: {
+      type: String,
+      default: generateCommentId,
+    },
+    postId: { type: String, required: true },
     text: { type: String, required: true },
-    likes: { type: Number, default: 0 },
+    likes: [{ type: Types.ObjectId, ref: 'User' }],
+    dislikes: [{ type: Types.ObjectId, ref: 'User' }],
     replies: [ReplySchema],
     createdAt: { type: Date, default: Date.now },
   },
@@ -32,12 +44,19 @@ const PostSchema = new Schema(
       enum: ['published', 'draft', 'hidden'],
       default: 'published',
     },
-    likes: [{ type: String, default: 0 }],
+    likes: [{ type: Types.ObjectId, ref: 'User' }],
+    dislikes: [{ type: Types.ObjectId, ref: 'User' }],
     comments: [CommentSchema],
-    bookmark: [{
-      type: Types.ObjectId, ref: 'User'
-    }],
-    isHide: Boolean
+    bookmarks: [
+      {
+        type: Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    isHidden: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

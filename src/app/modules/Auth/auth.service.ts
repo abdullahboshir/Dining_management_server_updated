@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import status from 'http-status'
 import AppError from '../../errors/AppError'
 import User from '../User/user.model'
 import { TLoginUser } from './auth.interface'
 import config from '../../config'
 import bcrypt from 'bcrypt'
-import { createToken, findRoleBaseUser, verifyToken } from './auth.utils'
+import { createToken, verifyToken } from './auth.utils'
 import { sendEmail } from '../../utils/sendEmail'
 
 
@@ -76,7 +77,7 @@ export const refreshTokenService = async (token: string) => {
 
   const decoded = verifyToken(token, config.jwt_refresh_secret as string)
 
-  const { userId, role, iat } = decoded
+  const { userId, iat } = decoded
 
   const isUserExists = await User.isUserExistsById(userId)
 
@@ -170,13 +171,13 @@ export const forgetPasswordService = async (payload: any) => {
 
 
   const resetUILink = `${config.reset_pass_ui_link}/reset-password?id=${isUserExists.id}&token=${accessToken}`
-  const emails =
-    'samiunnoor71@gmail.com, allused2020@gmail.com, projuktiit.info@gmail.com'
+  // const emails =
+  //   'samiunnoor71@gmail.com, allused2020@gmail.com, projuktiit.info@gmail.com'
 
   const userEmail = isUserExists.email
 
-  const emailSend = await sendEmail(emails, resetUILink)
-  console.log('email sendedddddddddddd', emailSend.messageId)
+  const emailSend = await sendEmail(userEmail, resetUILink)
+
   return emailSend.messageId
 }
 
@@ -184,7 +185,7 @@ export const forgetPasswordService = async (payload: any) => {
 export const resetPasswordService = async (token: string, payload: any) => {
   const decoded = verifyToken(token, config.jwt_access_secret as string)
 
-  const { userId, role, id, email } = decoded
+  const { userId, role, email } = decoded
 
   const isUserExists = await User.isUserExistsByCustomId(payload.id, email)
 

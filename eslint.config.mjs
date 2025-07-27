@@ -21,6 +21,7 @@ export default [
       'prefer-const': ['error', { ignoreReadBeforeAssign: true }],
       'no-console': 'warn',
       'no-undef': 'error',
+         "@typescript-eslint/no-require-imports": "off"
     },
   },
   pluginJs.configs.recommended,

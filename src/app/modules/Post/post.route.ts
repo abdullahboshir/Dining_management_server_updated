@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
-import { createPostController, getAllPostsController, updateBookmarkController, updateLikeController } from './post.controller';
+import { createCommentController, createPostController, getAllPostsController, updateBookmarkController, updateCommentReactionsController, updateLikeController } from './post.controller';
 import auth from '../../middlewares/auth';
 import { USER_ROLE } from '../User/user.constant';
 import { upload } from '../../utils/IMGUploader';
@@ -21,5 +21,10 @@ router.post('/create',   auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.m
 
 
   router.patch('/:postId', auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.manager, USER_ROLE.moderator, USER_ROLE.student), updateBookmarkController)
+
+
+  router.patch('/comment/like/:postId', auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.manager, USER_ROLE.moderator, USER_ROLE.student), updateCommentReactionsController)
+
+  router.patch('/comment/:postId', auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.manager, USER_ROLE.moderator, USER_ROLE.student), createCommentController)
 
 export const postRoutes = router;
