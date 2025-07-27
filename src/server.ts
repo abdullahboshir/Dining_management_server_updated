@@ -9,7 +9,7 @@ import { seedHallAndDining, seedMeal, seedSuperAdmin } from './app/DB'
 
 let server: Server
 
-export async function main() { 
+async function main() {
   try {
     if (!config.db_url) {
       console.log('Database URL is missing'.red)
