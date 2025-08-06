@@ -1,0 +1,107 @@
+ABDULLAH BOSHIR
+FULLSTACK DEVELOPER
+
+CONTACT INFORMATION
+Email: abdullahboshir@gmail.com
+Phone: +880 1852 141471
+Location: Cumilla, Chattogram, Bangladesh
+Portfolio: https://abdullahboshir.vercel.app
+LinkedIn: https://www.linkedin.com/in/abdullahboshir
+GitHub: https://github.com/abdullahboshir
+
+PROFESSIONAL SUMMARY
+Passionate Fullstack Developer with expertise in modern web technologies including React.js, Next.js, Node.js, and TypeScript. Experienced in building scalable web applications with clean architecture, responsive design, and optimal performance. Committed to continuous learning and staying current with emerging technologies.
+
+TECHNICAL SKILLS
+
+Frontend Technologies:
+React.js, Next.js, JavaScript, TypeScript, HTML5, CSS3, Tailwind CSS, Bootstrap, DaisyUI, Material UI, Redux Toolkit, React Hook Form, React Router, Responsive Design, UI/UX Principles
+
+Backend Technologies:
+Node.js, Express.js, RESTful APIs, JWT Authentication, Role-based Access Control, Database Design, Database Optimization
+
+Databases and ORMs:
+MongoDB, Mongoose, PostgreSQL, Prisma ORM, SQL, Database Management
+
+Tools and Workflow:
+Git, GitHub, VS Code, Figma, Postman, Microsoft Office, Adobe Photoshop, Adobe Illustrator
+
+Validation and Security:
+Zod Validation, Form Validation, JWT Authentication, Security Best Practices
+
+PROFESSIONAL PROJECTS
+
+HALL MANAGEMENT SYSTEM
+Technologies: React.js, Next.js, Tailwind CSS, Material UI, Redux Toolkit, Node.js, Express.js, TypeScript, MongoDB, Mongoose, JWT, Zod
+
+- Built comprehensive web application for managing hall operations, users, and meal data
+- Implemented JWT-based authentication with role-based access control
+- Developed scalable backend using Node.js, Express.js, and TypeScript
+- Created responsive frontend with React.js, Next.js, and Material UI components
+- Integrated MUI DataGrid and DatePickers for enhanced user experience
+- Managed application state efficiently using Redux Toolkit
+- Live Demo: https://hall-management-client.vercel.app/login
+- GitHub Client: https://github.com/abdullahboshir/Hall_management_client_updated
+- GitHub Server: https://github.com/abdullahboshir/Dining_management_server_updated
+
+PARTS ZONE - CAR PARTS WEBSITE
+Technologies: React.js, Tailwind CSS, CSS3, Node.js, Express.js, React Hook Form, React Router
+
+- Developed clean and responsive car parts e-commerce website
+- Focused on minimal design while maintaining real-world functionality
+- Built efficient backend logic with Node.js and Express.js
+- Created intuitive frontend using React.js with custom CSS styling
+- Implemented responsive design for optimal cross-device performance
+- Live Demo: https://parts-zone.web.app/
+- GitHub Client: https://github.com/abdullahboshir/parts_zone_client
+- GitHub Server: https://github.com/abdullahboshir/parts_zone_server
+
+WAYFERER - TRAVEL SERVICES PLATFORM
+Technologies: React.js, Next.js, Tailwind CSS, Node.js, Express.js, PostgreSQL, Prisma, JWT
+
+- Built modern tour services website with interactive features
+- Developed RESTful backend API using Node.js and Express.js
+- Integrated PostgreSQL database with Prisma ORM for efficient data management
+- Designed responsive frontend with React.js, Next.js, and Tailwind CSS
+- Implemented JWT authentication for secure user management
+- Optimized for performance and smooth user experience
+- Live Demo: https://travel-buddy-client-eight.vercel.app/
+- GitHub Client: https://github.com/abdullahboshir/Travel_buddy_client
+- GitHub Server: https://github.com/abdullahboshir/Travel_buddy_server
+
+EDUCATION
+
+MBA in Marketing
+Cumilla Victoria Govt. College (NU)
+2023-2025
+
+BBA in Marketing
+Cumilla Victoria Govt. College (NU)
+2017-2022
+
+CERTIFICATIONS AND COURSES
+
+Complete Web Development Course with Jhankar Mahbub
+Programming Hero
+2022
+
+Next Level Web Development
+Programming Hero
+2024
+
+LANGUAGES
+
+Bengali: Native
+English: Professional Working Proficiency
+Hindi: Conversational
+
+KEY STRENGTHS
+
+- Full-stack web development expertise
+- Modern JavaScript frameworks and libraries
+- Database design and optimization
+- Responsive and mobile-first design
+- RESTful API development
+- Authentication and security implementation
+- Version control and collaborative development
+- Problem-solving and analytical thinking
